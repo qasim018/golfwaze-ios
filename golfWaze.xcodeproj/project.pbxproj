@@ -1,0 +1,657 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CB19994D2EF03863006B7874 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = CB19994C2EF03863006B7874 /* Alamofire */; };
+		CB199E162EF0415D006B7874 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = CB199E152EF0415D006B7874 /* SDWebImageSwiftUI */; };
+		CB8674752EDC4D1A00A1FF4F /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = CB8674742EDC4D1A00A1FF4F /* GoogleMaps */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		CB986D152ECF2025003F87DD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CB986CFF2ECF2023003F87DD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CB986D062ECF2023003F87DD;
+			remoteInfo = golfWaze;
+		};
+		CB986D1F2ECF2025003F87DD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CB986CFF2ECF2023003F87DD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CB986D062ECF2023003F87DD;
+			remoteInfo = golfWaze;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		CB986D072ECF2023003F87DD /* golfWaze.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = golfWaze.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB986D142ECF2025003F87DD /* golfWazeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = golfWazeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB986D1E2ECF2025003F87DD /* golfWazeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = golfWazeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CB8674772EDC4EC900A1FF4F /* Exceptions for "golfWaze" folder in "golfWaze" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CB986D062ECF2023003F87DD /* golfWaze */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		CB986D092ECF2023003F87DD /* golfWaze */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CB8674772EDC4EC900A1FF4F /* Exceptions for "golfWaze" folder in "golfWaze" target */,
+			);
+			path = golfWaze;
+			sourceTree = "<group>";
+		};
+		CB986D172ECF2025003F87DD /* golfWazeTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = golfWazeTests;
+			sourceTree = "<group>";
+		};
+		CB986D212ECF2025003F87DD /* golfWazeUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = golfWazeUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CB986D042ECF2023003F87DD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB199E162EF0415D006B7874 /* SDWebImageSwiftUI in Frameworks */,
+				CB8674752EDC4D1A00A1FF4F /* GoogleMaps in Frameworks */,
+				CB19994D2EF03863006B7874 /* Alamofire in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB986D112ECF2025003F87DD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB986D1B2ECF2025003F87DD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CB986CFE2ECF2023003F87DD = {
+			isa = PBXGroup;
+			children = (
+				CB986D092ECF2023003F87DD /* golfWaze */,
+				CB986D172ECF2025003F87DD /* golfWazeTests */,
+				CB986D212ECF2025003F87DD /* golfWazeUITests */,
+				CB986D082ECF2023003F87DD /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CB986D082ECF2023003F87DD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CB986D072ECF2023003F87DD /* golfWaze.app */,
+				CB986D142ECF2025003F87DD /* golfWazeTests.xctest */,
+				CB986D1E2ECF2025003F87DD /* golfWazeUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CB986D062ECF2023003F87DD /* golfWaze */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CB986D282ECF2025003F87DD /* Build configuration list for PBXNativeTarget "golfWaze" */;
+			buildPhases = (
+				CB986D032ECF2023003F87DD /* Sources */,
+				CB986D042ECF2023003F87DD /* Frameworks */,
+				CB986D052ECF2023003F87DD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				CB986D092ECF2023003F87DD /* golfWaze */,
+			);
+			name = golfWaze;
+			packageProductDependencies = (
+				CB8674742EDC4D1A00A1FF4F /* GoogleMaps */,
+				CB19994C2EF03863006B7874 /* Alamofire */,
+				CB199E152EF0415D006B7874 /* SDWebImageSwiftUI */,
+			);
+			productName = golfWaze;
+			productReference = CB986D072ECF2023003F87DD /* golfWaze.app */;
+			productType = "com.apple.product-type.application";
+		};
+		CB986D132ECF2025003F87DD /* golfWazeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CB986D2B2ECF2025003F87DD /* Build configuration list for PBXNativeTarget "golfWazeTests" */;
+			buildPhases = (
+				CB986D102ECF2025003F87DD /* Sources */,
+				CB986D112ECF2025003F87DD /* Frameworks */,
+				CB986D122ECF2025003F87DD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CB986D162ECF2025003F87DD /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CB986D172ECF2025003F87DD /* golfWazeTests */,
+			);
+			name = golfWazeTests;
+			packageProductDependencies = (
+			);
+			productName = golfWazeTests;
+			productReference = CB986D142ECF2025003F87DD /* golfWazeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		CB986D1D2ECF2025003F87DD /* golfWazeUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CB986D2E2ECF2025003F87DD /* Build configuration list for PBXNativeTarget "golfWazeUITests" */;
+			buildPhases = (
+				CB986D1A2ECF2025003F87DD /* Sources */,
+				CB986D1B2ECF2025003F87DD /* Frameworks */,
+				CB986D1C2ECF2025003F87DD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CB986D202ECF2025003F87DD /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CB986D212ECF2025003F87DD /* golfWazeUITests */,
+			);
+			name = golfWazeUITests;
+			packageProductDependencies = (
+			);
+			productName = golfWazeUITests;
+			productReference = CB986D1E2ECF2025003F87DD /* golfWazeUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CB986CFF2ECF2023003F87DD /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1630;
+				LastUpgradeCheck = 1630;
+				TargetAttributes = {
+					CB986D062ECF2023003F87DD = {
+						CreatedOnToolsVersion = 16.3;
+					};
+					CB986D132ECF2025003F87DD = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = CB986D062ECF2023003F87DD;
+					};
+					CB986D1D2ECF2025003F87DD = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = CB986D062ECF2023003F87DD;
+					};
+				};
+			};
+			buildConfigurationList = CB986D022ECF2023003F87DD /* Build configuration list for PBXProject "golfWaze" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				ar,
+			);
+			mainGroup = CB986CFE2ECF2023003F87DD;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				CB8674732EDC4D1A00A1FF4F /* XCRemoteSwiftPackageReference "ios-maps-sdk" */,
+				CB19994B2EF03863006B7874 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				CB199E142EF0415D006B7874 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = CB986D082ECF2023003F87DD /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CB986D062ECF2023003F87DD /* golfWaze */,
+				CB986D132ECF2025003F87DD /* golfWazeTests */,
+				CB986D1D2ECF2025003F87DD /* golfWazeUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CB986D052ECF2023003F87DD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB986D122ECF2025003F87DD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB986D1C2ECF2025003F87DD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CB986D032ECF2023003F87DD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB986D102ECF2025003F87DD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB986D1A2ECF2025003F87DD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CB986D162ECF2025003F87DD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CB986D062ECF2023003F87DD /* golfWaze */;
+			targetProxy = CB986D152ECF2025003F87DD /* PBXContainerItemProxy */;
+		};
+		CB986D202ECF2025003F87DD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CB986D062ECF2023003F87DD /* golfWaze */;
+			targetProxy = CB986D1F2ECF2025003F87DD /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		CB986D262ECF2025003F87DD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 52DPF52M65;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		CB986D272ECF2025003F87DD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 52DPF52M65;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CB986D292ECF2025003F87DD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = 88HFDA8NM9;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = golfWaze/Info.plist;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your app uses location to show your position on the map.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.golfWaze.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		CB986D2A2ECF2025003F87DD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = 88HFDA8NM9;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = golfWaze/Info.plist;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your app uses location to show your position on the map.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.golfWaze.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		CB986D2C2ECF2025003F87DD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 52DPF52M65;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = abc.golfWazeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/golfWaze.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/golfWaze";
+			};
+			name = Debug;
+		};
+		CB986D2D2ECF2025003F87DD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 52DPF52M65;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = abc.golfWazeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/golfWaze.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/golfWaze";
+			};
+			name = Release;
+		};
+		CB986D2F2ECF2025003F87DD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 52DPF52M65;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = abc.golfWazeUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = golfWaze;
+			};
+			name = Debug;
+		};
+		CB986D302ECF2025003F87DD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 52DPF52M65;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = abc.golfWazeUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = golfWaze;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CB986D022ECF2023003F87DD /* Build configuration list for PBXProject "golfWaze" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB986D262ECF2025003F87DD /* Debug */,
+				CB986D272ECF2025003F87DD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CB986D282ECF2025003F87DD /* Build configuration list for PBXNativeTarget "golfWaze" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB986D292ECF2025003F87DD /* Debug */,
+				CB986D2A2ECF2025003F87DD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CB986D2B2ECF2025003F87DD /* Build configuration list for PBXNativeTarget "golfWazeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB986D2C2ECF2025003F87DD /* Debug */,
+				CB986D2D2ECF2025003F87DD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CB986D2E2ECF2025003F87DD /* Build configuration list for PBXNativeTarget "golfWazeUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB986D2F2ECF2025003F87DD /* Debug */,
+				CB986D302ECF2025003F87DD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		CB19994B2EF03863006B7874 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.10.2;
+			};
+		};
+		CB199E142EF0415D006B7874 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.1.4;
+			};
+		};
+		CB8674732EDC4D1A00A1FF4F /* XCRemoteSwiftPackageReference "ios-maps-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googlemaps/ios-maps-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.6.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CB19994C2EF03863006B7874 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB19994B2EF03863006B7874 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		CB199E152EF0415D006B7874 /* SDWebImageSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB199E142EF0415D006B7874 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
+			productName = SDWebImageSwiftUI;
+		};
+		CB8674742EDC4D1A00A1FF4F /* GoogleMaps */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB8674732EDC4D1A00A1FF4F /* XCRemoteSwiftPackageReference "ios-maps-sdk" */;
+			productName = GoogleMaps;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = CB986CFF2ECF2023003F87DD /* Project object */;
+}
