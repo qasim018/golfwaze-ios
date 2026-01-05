@@ -91,6 +91,8 @@ final class CourseMarkerView: UIView {
         addSubview(bubble)
         
         NSLayoutConstraint.activate([
+            bubble.widthAnchor.constraint(lessThanOrEqualToConstant: 180),
+
             bubble.topAnchor.constraint(equalTo: topAnchor),
             bubble.leadingAnchor.constraint(equalTo: leadingAnchor),
             bubble.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -161,42 +163,50 @@ final class CoursesMapVM: ObservableObject {
     @Published var coordinates: [CLLocationCoordinate2D] = []
     @Published var markers: [CourseMarker] = []
     
-    func getNearbyCourses() {
+    @MainActor func getNearbyCourses() {
+
+        let lat = LocationManager.shared.latitude ?? 41.051548
+        let lng = LocationManager.shared.longitude ?? -73.80265
+
         APIClient.shared.getNearbyCourses(
-            lat: 41.051548,
-            lng: -73.80265,
-            completion: { [weak self] result in
-                guard let self = self else { return }
-                
-                switch result {
-                case .success(let response):
-                    // Coordinates
-                    self.coordinates = response.courses.map { course in
-                        let lat = course.location?.latitude ?? 0.0
-                        let lng = course.location?.longitude ?? 0.0
-                        return CLLocationCoordinate2D(latitude: lat, longitude: lng)
-                    }
-                    
-                    // Markers
-                    self.markers = response.courses.map { course in
-                        let lat = course.location?.latitude ?? 0.0
-                        let lng = course.location?.longitude ?? 0.0
-                        let holesCount = course.holesCount ?? 0
-                        let parTotal = course.parTotal ?? 0
-                        
-                        return CourseMarker(
-                            id: course.id ?? "", coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lng),
-                            holeTitle: "Holes: \(holesCount)", clubName: course.clubName ?? "",
-                            groupsText: "Par: \(parTotal)",
-                            courseName: course.courseName ?? "",
-                            status: 1
-                        )
-                    }
-                    
-                case .failure(let error):
-                    print(error)
+            lat: lat,
+            lng: lng
+        ) { [weak self] result in
+            guard let self else { return }
+
+            switch result {
+            case .success(let response):
+
+                self.coordinates = response.courses.compactMap { course in
+                    guard
+                        let lat = course.location?.latitude,
+                        let lng = course.location?.longitude
+                    else { return nil }
+
+                    return CLLocationCoordinate2D(latitude: lat, longitude: lng)
                 }
+
+                self.markers = response.courses.map { course in
+                    let lat = course.location?.latitude ?? 0.0
+                    let lng = course.location?.longitude ?? 0.0
+                    let holesCount = course.holesCount ?? 0
+                    let parTotal = course.parTotal ?? 0
+
+                    return CourseMarker(
+                        id: course.id ?? "",
+                        coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lng),
+                        holeTitle: "Holes: \(holesCount)",
+                        clubName: course.clubName ?? "",
+                        groupsText: "Par: \(parTotal)",
+                        courseName: course.courseName ?? "",
+                        status: 1
+                    )
+                }
+
+            case .failure(let error):
+                print("Nearby courses error:", error)
             }
-        )
+        }
     }
+
 }

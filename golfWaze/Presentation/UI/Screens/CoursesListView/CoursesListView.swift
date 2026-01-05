@@ -49,8 +49,8 @@ struct CoursesListView: View {
                     mapFloatingButton
                         .padding()
                 }
-                carousel
-                    .padding(.bottom, 24)
+//                carousel
+//                    .padding(.bottom, 24)
             }
         }
         .onAppear {
@@ -181,16 +181,16 @@ struct CourseCardView: View {
                         .font(.headline)
                     
                     HStack(spacing: 6) {
-                        Text("\(course.distanceKm?.oneDecimalString() ?? "0.0") KM")
-                            .foregroundColor(.secondary)
+//                        Text("\(course.distanceKm?.oneDecimalString() ?? "0.0") KM")
+//                            .foregroundColor(.secondary)
+//                        
+                        Text(course.location?.address ?? "")
                         
-                        Text("•")
-                        
-                        Image(systemName: "star.fill")
-                            .foregroundColor(.yellow)
-                        
-                        Text("3.6(63)")
-                            .foregroundColor(.secondary)
+//                        Image(systemName: "star.fill")
+//                            .foregroundColor(.yellow)
+//                        
+//                        Text("3.6(63)")
+//                            .foregroundColor(.secondary)
                     }
                     .font(.subheadline)
                 }

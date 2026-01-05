@@ -16,6 +16,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 //        let success = GMSServices.provideAPIKey("AIzaSyDWcjG_SiSPpoaS3yK7oaeKCCWNBjlC-14")
 //        GMSServices.provideAPIKey("AIzaSyC9s2o5LHBYv8X-sZUyDUk83qiycyLv2C8")
         GMSServices.provideAPIKey("AIzaSyCSWt8Larh8ULBrFCEzO_v2kIAtBgKC-B8")
+        LocationManager.shared.requestLocationAccess()
+
+        LocationManager.shared.getCurrentLocation()
+
 //        if GMSServices.openSourceLicenseInfo().isEmpty {
 //            print("Google Maps SDK initialized")
 //        }

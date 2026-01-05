@@ -55,7 +55,7 @@ struct GolfCourseDetailView: View {
                 PlayTimePopup(
                     onNow: {
                         showPlayPopup = false
-                        coordinator.push(.createRound(courseID: courseID))
+                        coordinator.push(.createRound(courseID: courseID, courseName: viewModel.golfCourseName))
                     },
                     onFuture: {
                         showPlayPopup = false

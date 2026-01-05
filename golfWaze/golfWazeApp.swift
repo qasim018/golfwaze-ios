@@ -12,12 +12,17 @@ import GoogleMaps
 struct golfWazeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
-    
+    @StateObject var locationManager = LocationManager.shared
+
     var body: some Scene {
         WindowGroup {
             RootFlowView()
                 .preferredColorScheme(.light)
-
+                .environmentObject(locationManager)
+                .onAppear {
+                    locationManager.requestLocationAccess()
+                    locationManager.getCurrentLocation()
+                }
         }
     }
     

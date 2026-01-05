@@ -25,6 +25,7 @@ struct GolfHoleScreen: View {
     @StateObject var trafficVM = LiveTrafficViewModel()
     @State private var pollTimer: Timer?   // 👈 hold timer
     @State private var updateTimer: Timer?   // 👈 second timer
+    @EnvironmentObject var locationManager: LocationManager
 
     
     let coordinates: [CLLocationCoordinate2D] = [
@@ -343,19 +344,25 @@ extension GolfHoleScreen {
         // 💡 Example payload — adjust fields as needed
         guard let userId = SessionManager.load()?.id else { return }
         
-        let payload = UpdateLiveTrafficRequest(
-            course_id: courseId,
-            hole_number: currentHole?.hole_number ?? 1,
-            lat: 41.050833,
-            lng: -73.803112,
-            user_id: "\(userId)",
-            round_id: response.round_id ?? "",
-            token: token
-        )
+        if let lat = locationManager.latitude,
+           let lng = locationManager.longitude {
+            
+            
+            let payload = UpdateLiveTrafficRequest(
+                course_id: courseId,
+                hole_number: currentHole?.hole_number ?? 1,
+                lat: lat,//41.050833,
+                lng: lng,//-73.803112,
+                user_id: "\(userId)",
+                round_id: response.round_id ?? "",
+                token: token
+            )
 
-        Task {
-            await trafficVM.updateLiveTraffic(payload)
+            Task {
+                await trafficVM.updateLiveTraffic(payload)
+            }
         }
+        
     }
 
     func stopPolling() {

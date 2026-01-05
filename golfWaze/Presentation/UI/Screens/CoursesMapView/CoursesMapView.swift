@@ -24,15 +24,13 @@ struct CoursesMapView: View {
                 searchBar
                     .padding(.horizontal, 16)
                     .padding(.top, 12)
-                    .onTapGesture {
-                        nav.push(.coursesList)
-                    }
+                    
                 Spacer()
 
                 
-                // MARK: - Carousel
-                carousel
-                    .padding(.bottom, 24)
+//                // MARK: - Carousel
+//                carousel
+//                    .padding(.bottom, 24)
             }
         }
     }
@@ -117,10 +115,16 @@ struct CoursesMapView: View {
     var mapView: some View {
         CoursesMapViewRepresentable(
             coordinates: viewModel.coordinates,
-            markers: viewModel.markers, onMarkerTap: { course in
+            markers: viewModel.markers,
+            onMarkerTap: { course in
                 nav.push(.golfCourseDetailView(courseID: course.id))
-            }
+            },
+            mapType: .satellite,     // 🛰 Satellite mode
+            initialZoom: 19,         // 🔎 closer view
+            minZoom: 5,
+            maxZoom: 24
         )
+
         .edgesIgnoringSafeArea(.all)
         .onAppear {
             viewModel.getNearbyCourses()
@@ -128,27 +132,25 @@ struct CoursesMapView: View {
     }
     
     var searchBar: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
-            
-            TextField("Search Course", text: $searchText)
-                .font(.system(size: 17))
-                .foregroundColor(.black)
-                .disableAutocorrection(true)
-                .textInputAutocapitalization(.none)
-            
-            Spacer()
+        Button {
+            nav.push(.coursesList)
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.gray)
+
+                Text("Search Course")
+                    .font(.system(size: 17))
+                    .foregroundColor(.black.opacity(0.7))
+
+                Spacer()
+            }
+            .padding()
+            .background(Color.white)
+            .cornerRadius(16)
+            .shadow(color: .black.opacity(0.25), radius: 4)
         }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(
-            color: Color.black.opacity(0.25),
-            radius: 4,
-            x: 0,
-            y: 0
-        )
+        .buttonStyle(.plain)
     }
     
     var carousel: some View {

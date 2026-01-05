@@ -23,12 +23,15 @@ struct StartRoundView: View {
     ]
 
     @State private var courseID = ""
+    @State private var courseName = ""
+    
     let userID = SessionManager.load()?.id ?? 0
     let token  = SessionManager.load()?.accessToken ?? ""
 
 
-    init(courseID: String) {
-        _courseID = State(initialValue: courseID)   // ✅ Proper initialization
+    init(courseID: String, courseName: String) {
+        _courseID = State(initialValue: courseID)   // ✅ Proper
+        _courseName = State(initialValue: courseName)   // ✅ Properinitialization
     }
 
 
@@ -67,7 +70,7 @@ struct StartRoundView: View {
                                 VStack(alignment: .leading, spacing: 10) {
 
                                     HStack {
-                                        Text("Sunrize Golf Club")
+                                        Text(courseName)
                                             .font(.system(size: 17, weight: .semibold))
 
                                         Spacer()
@@ -286,7 +289,7 @@ struct StartRoundView: View {
 }
 
 #Preview {
-    StartRoundView(courseID: "")
+    StartRoundView(courseID: "", courseName: "")
 }
 
 

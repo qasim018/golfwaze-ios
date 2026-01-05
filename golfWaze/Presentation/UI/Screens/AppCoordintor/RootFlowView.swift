@@ -81,8 +81,8 @@ struct RootFlowView: View {
         case .golfHole(let courseID, let response):
             GolfHoleScreen(courseId: courseID, response: response)
                 .environmentObject(tabBarCoordinator)
-        case .createRound(let courseID):
-            StartRoundView(courseID: courseID).environmentObject(tabBarCoordinator)
+        case .createRound(let courseID, let courseName):
+            StartRoundView(courseID: courseID,courseName: courseName).environmentObject(tabBarCoordinator)
         }
         
     }

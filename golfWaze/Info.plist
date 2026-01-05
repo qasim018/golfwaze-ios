@@ -9,5 +9,11 @@
 	</dict>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
+    
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>We need your location to show nearby golf courses.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>We use your location to improve your app experience.</string>
+
 </dict>
 </plist>
