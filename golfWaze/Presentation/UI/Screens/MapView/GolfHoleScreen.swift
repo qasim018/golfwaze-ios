@@ -5,45 +5,26 @@
 //  Created by Abdullah-Shahid  on 30/11/2025.
 //
 
-import SwiftUI
-import GoogleMaps
-//
-//  GolfHoleScreen.swift
-//  golfWaze
-//
-//  Created by Abdullah-Shahid  on 30/11/2025.
-//
 
 import SwiftUI
 import GoogleMaps
 
 struct GolfHoleScreen: View {
     @State private var isExpanded = false
-
     @State private var zoomAction: GoogleMapView.ZoomAction? = nil
+    @State private var mapLinescoordinates: [CLLocationCoordinate2D] = []
     
     @StateObject var trafficVM = LiveTrafficViewModel()
-    @State private var pollTimer: Timer?   // 👈 hold timer
-    @State private var updateTimer: Timer?   // 👈 second timer
+    @State private var pollTimer: Timer?
+    @State private var updateTimer: Timer?
     @EnvironmentObject var locationManager: LocationManager
+    @State private var showFinishSheet = false
 
-    
-    let coordinates: [CLLocationCoordinate2D] = [
-            CLLocationCoordinate2D(latitude: 41.050833, longitude: -73.803112),
-            CLLocationCoordinate2D(latitude: 41.050576, longitude: -73.803897),
-            CLLocationCoordinate2D(latitude: 41.050833, longitude: -73.802482),
-            CLLocationCoordinate2D(latitude: 41.052389, longitude: -73.804284),
-            CLLocationCoordinate2D(latitude: 41.05446, longitude: -73.803373),
-        ]
-
-        
-//    let courseId: String = "15733"
     let token: String = SessionManager.load()?.accessToken ?? ""
-    
     let courseId: String
-    let response: CreateRoundResponse   // 👈 API Response
+    let response: CreateRoundResponse
     
-    @State private var currentHoleIndex = 0   // 👈 start from Hole 1
+    @State private var currentHoleIndex = 0
     
     var holes: [HoleInfo] {
         response.holes ?? []
@@ -54,35 +35,101 @@ struct GolfHoleScreen: View {
         return holes[currentHoleIndex]
     }
 
-    
+    func holePathPoints(_ hole: HoleInfo) -> [CLLocationCoordinate2D] {
+        [
+            CLLocationCoordinate2D(
+                latitude: hole.locations.tee.lat,
+                longitude: hole.locations.tee.lng
+            ),
+            CLLocationCoordinate2D(
+                latitude: hole.locations.mid.lat,
+                longitude: hole.locations.mid.lng
+            ),
+            CLLocationCoordinate2D(
+                latitude: hole.locations.green.lat,
+                longitude: hole.locations.green.lng
+            )
+        ]
+    }
+
     var body: some View {
         ZStack {
             GoogleMapView(
                 coordinates: trafficVM.coordinates,
-                initialZoom: 18,      // 🔹 start closer
+                mapLinescoordinates: $mapLinescoordinates,
+                initialZoom: 12,
                 minZoom: 5,
-                maxZoom: 22,          // 🔹 allow deep zoom
-                mapType: .satellite,  // 🔹 or .hybrid
+                maxZoom: 20,
+                mapType: .satellite,
                 zoomAction: $zoomAction
             )
-
             .edgesIgnoringSafeArea(.all)
+            
             overlaysLayer
+            
+            if showFinishSheet {
+                finishOverlay
+            }
         }
         .task {
+            // Set initial hole path
+            if let hole = currentHole {
+                mapLinescoordinates = holePathPoints(hole)
+            }
+            
             trafficVM.fetchLiveTraffic(courseId: courseId, token: token)
             startPolling()
         }
         .onDisappear {
             stopPolling()
         }
+        .onChange(of: currentHoleIndex) { newValue in
+            // Update map lines when hole changes (iOS 15+ compatible)
+            if let hole = currentHole {
+                mapLinescoordinates = holePathPoints(hole)
+            }
+        }
     }
+   
+    private var finishOverlay: some View {
+        ZStack {
+            // Dimmed background
+            Color.black.opacity(0.45)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    withAnimation {
+                        showFinishSheet = false
+                    }
+                }
+
+            VStack {
+                Spacer()
+
+                FinishRoundSheetView(
+                    onCompleteScorecard: {
+                        showFinishSheet = false
+                    },
+                    onEnterTotalScore: {
+                        showFinishSheet = false
+                    },
+                    onFinishAndExit: {
+                        showFinishSheet = false
+                    },
+                    onDelete: {
+                        showFinishSheet = false
+                    }
+                )
+                .transition(.move(edge: .bottom))
+            }
+            .ignoresSafeArea(edges: .bottom)
+        }
+        .animation(.easeInOut, value: showFinishSheet)
+    }
+
     
     // MARK: - Overlay Layer
     private var overlaysLayer: some View {
         ZStack {
-            
-
             // Right Side Info Card
             VStack {
                 Spacer().frame(height: 120)
@@ -94,22 +141,15 @@ struct GolfHoleScreen: View {
             }
             .padding(.trailing, 16)
             
-            // Distance Labels
-            // distanceLabelsLayer()
-            
             // Bottom Controls
             VStack(spacing: 20) {
                 Spacer()
-                
-                trackShotButton()
-                
+//                trackShotButton()
                 holeSelector()
             }
-            .padding(.bottom, 20)
-            
-            // Zoom Controls Left + Scorecard Left
-            zoomControlsLayer()
-            
+//            
+//            // Zoom Controls
+//            zoomControlsLayer()
         }
     }
     
@@ -125,7 +165,6 @@ struct GolfHoleScreen: View {
     
     func holeInfoCard() -> some View {
         VStack(spacing: 12) {
-
             Text("Mid Green\n\(currentHole?.yardage ?? 0) yds")
                 .multilineTextAlignment(.center)
                 .font(.system(size: 15, weight: .semibold))
@@ -157,17 +196,14 @@ struct GolfHoleScreen: View {
         .shadow(radius: 3)
     }
 
-
     func groupRow(title: String, value: String) -> some View {
         VStack(spacing: 2) {
             Text(title)
                 .font(.system(size: 14))
-
             Text(value)
                 .font(.system(size: 16, weight: .semibold))
         }
     }
-
     
     func distanceBubble(_ text: String) -> some View {
         Text(text)
@@ -181,8 +217,6 @@ struct GolfHoleScreen: View {
     
     func trackShotButton() -> some View {
         HStack(spacing: 10) {
-
-            // LEFT ICON BLOCK — no inner padding
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color(hex: "#0E1A36"))
                 .frame(width: 60, height: 54)
@@ -203,51 +237,85 @@ struct GolfHoleScreen: View {
         .clipShape(RoundedRectangle(cornerRadius: 15))
         .shadow(color: .black.opacity(0.12), radius: 6, y: 2)
     }
-
     
     func holeSelector() -> some View {
-        HStack(spacing: 12) {
-
-            Button {
+        ZStack {
+            
+            // CENTERED MAIN PILL
+            HStack(spacing: 0) {
+                
+                // LEFT (Back)
                 if currentHoleIndex > 0 {
-                    currentHoleIndex -= 1
+                    Button {
+                        currentHoleIndex -= 1
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.black)
+                            .frame(width: 40, height: 56)
+                            .background(Color.white)
+                    }
                 }
-            } label: {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 16, weight: .semibold))
-            }
 
-            VStack(spacing: 2) {
-                Text("Hole \(currentHole?.hole_number ?? 1)")
-                    .font(.system(size: 18, weight: .semibold))
+                // CENTER
+                VStack(spacing: 2) {
+                    Text("Hole \(currentHole?.hole_number ?? 1)")
+                        .font(.system(size: 18, weight: .semibold))
 
-                Text("Enter Score")
-                    .font(.system(size: 14))
-                    .foregroundColor(Color(hex: "#1A1F2F").opacity(0.8))
+                    Text("Enter Score")
+                        .font(.system(size: 14))
+                }
+                .foregroundColor(Color(hex: "#1A1F2F"))
+                .frame(width: 120, height: 56)
+                .background(Color(hex: "#E7EFFF"))
+
+                // RIGHT
+                if currentHoleIndex == holes.count - 1 {
+                    Button {
+                        showFinishSheet = true
+                    } label: {
+                        Text("Finish\nRound")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .frame(width: 80, height: 56)
+                            .background(Color.blue)
+                    }
+                } else {
+                    Button {
+                        currentHoleIndex += 1
+                    } label: {
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.black)
+                            .frame(width: 40, height: 56)
+                            .background(Color.white)
+                    }
+                }
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 8)
-            .background(Color(hex: "#E7EFFF"))
             .clipShape(RoundedRectangle(cornerRadius: 14))
+            .shadow(color: .black.opacity(0.15), radius: 6, y: 2)
 
-            Button {
-                if currentHoleIndex < (holes.count - 1) {
-                    currentHoleIndex += 1
+            // RIGHT SIDE ZOOM CONTROLS (12pt from edge)
+            HStack {
+                Spacer()
+                
+                VStack(spacing: 8) {
+                    circleButton(icon: "plus.magnifyingglass") {
+                        zoomAction = .zoomIn
+                    }
+
+                    circleButton(icon: "minus.magnifyingglass") {
+                        zoomAction = .zoomOut
+                    }
                 }
-            } label: {
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 16, weight: .semibold))
+                .padding(.trailing, 12)
             }
         }
-        .frame(height: 60)
-        .padding(.horizontal, 16)
-        .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 18))
-        .shadow(color: .black.opacity(0.12), radius: 6, y: 2)
+        .frame(maxWidth: .infinity)
     }
 
 
-    
     func zoomControlsLayer() -> some View {
         VStack {
             Spacer()
@@ -264,11 +332,6 @@ struct GolfHoleScreen: View {
                 }
 
                 Spacer()
-
-//                Button("Scorecard") {}
-//                    .padding(10)
-//                    .background(Color.white)
-//                    .cornerRadius(10)
             }
             .padding(.horizontal, 20)
 
@@ -276,10 +339,7 @@ struct GolfHoleScreen: View {
         }
     }
     
-    func circleButton(
-        icon: String,
-        action: @escaping () -> Void
-    ) -> some View {
+    func circleButton(icon: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: icon)
                 .font(.system(size: 26))
@@ -290,7 +350,6 @@ struct GolfHoleScreen: View {
                 .shadow(radius: 3)
         }
     }
-
 }
 
 #Preview {
@@ -303,7 +362,7 @@ struct GolfHoleScreen: View {
             course_id: "course_1",
             club_name: "Sample Club",
             course_name: "Sample Course",
-            location: CourseLocation(latitude: 0, longitude: 0,address: "", city: "", state: "", country: ""), // adjust if you have a different type
+            location: CourseLocation(latitude: 0, longitude: 0, address: "", city: "", state: "", country: ""),
             holes_count: "18"
         ),
         tee: TeeInfo(tee_id: "tee_1", tee_name: "Blue"),
@@ -311,9 +370,12 @@ struct GolfHoleScreen: View {
             RoundPlayer(player_id: "p1", name: "Alice", profile_pic: nil)
         ],
         holes: [
-            HoleInfo(hole_number: 1, par: 4, handicap: 8, yardage: 380),
-            HoleInfo(hole_number: 2, par: 3, handicap: 12, yardage: 160),
-            HoleInfo(hole_number: 3, par: 5, handicap: 2, yardage: 520)
+            HoleInfo(hole_number: 1, par: 4, handicap: 8, yardage: 380,
+                    locations: HoleLocations(
+                        tee: HoleCoordinate(lat: 34.289850583377465, lng: -118.49933512508869),
+                        mid: HoleCoordinate(lat: 34.29024863790201, lng: -118.49689967930316),
+                        green: HoleCoordinate(lat: 34.29036110112124, lng: -118.49514484405519)
+                    )),
         ],
         scores: []
     )
@@ -323,36 +385,32 @@ struct GolfHoleScreen: View {
 extension GolfHoleScreen {
 
     func startPolling() {
-
-        // first immediate calls
+        // First immediate calls
         trafficVM.fetchLiveTraffic(courseId: courseId, token: token)
         callUpdateAPI()
 
-        // 🔁 fetch live traffic every 15s
+        // Fetch live traffic every 15s
         pollTimer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { _ in
             trafficVM.fetchLiveTraffic(courseId: courseId, token: token)
         }
 
-        // 🔁 update live traffic every 20s
+        // Update live traffic every 14s
         updateTimer = Timer.scheduledTimer(withTimeInterval: 14, repeats: true) { _ in
             callUpdateAPI()
         }
     }
 
     func callUpdateAPI() {
-
-        // 💡 Example payload — adjust fields as needed
         guard let userId = SessionManager.load()?.id else { return }
         
         if let lat = locationManager.latitude,
            let lng = locationManager.longitude {
             
-            
             let payload = UpdateLiveTrafficRequest(
                 course_id: courseId,
                 hole_number: currentHole?.hole_number ?? 1,
-                lat: lat,//41.050833,
-                lng: lng,//-73.803112,
+                lat: lat,
+                lng: lng,
                 user_id: "\(userId)",
                 round_id: response.round_id ?? "",
                 token: token
@@ -362,7 +420,37 @@ extension GolfHoleScreen {
                 await trafficVM.updateLiveTraffic(payload)
             }
         }
-        
+    }
+    
+    func finishRoundApi(){
+        let requestModel = FinishRoundRequest(
+            token: token,
+            round_id: response.round_id ?? "",
+            round_finished: true,
+            finish_context: FinishContext(
+                reason: "finished_round",
+                user_id: SessionManager.load()?.id ?? 0
+            ),
+            end_location: EndLocation(
+                lat: 34.2925167,
+                lng: -118.4962613
+            ),
+            scores: [
+                Score(
+                    hole_number: 18,
+                    player_id: String(SessionManager.load()?.id ?? 0),
+                    strokes: 5,
+                    putts: 2,
+                    fairway_hit: true,
+                    gir: false
+                )
+            ]
+        )
+
+        Task {
+            await finishRoundAPI(requestModel: requestModel)
+        }
+
     }
 
     func stopPolling() {
@@ -375,5 +463,129 @@ extension GolfHoleScreen {
         updateTimer = nil
 
         trafficVM.cancelRequests()
+    }
+}
+
+
+struct FinishRoundSheetView: View {
+
+    var onCompleteScorecard: () -> Void
+    var onEnterTotalScore: () -> Void
+    var onFinishAndExit: () -> Void
+    var onDelete: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            
+            // Drag indicator
+            Capsule()
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: 40, height: 5)
+                .padding(.top, 8)
+            
+            // Close Button
+            HStack {
+                Spacer()
+                Button {
+                    onFinishAndExit()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundColor(.black)
+                        .frame(width: 36, height: 36)
+                        .background(Color.gray.opacity(0.1))
+                        .clipShape(Circle())
+                }
+                .padding(.trailing, 16)
+            }
+            
+            // Icon
+            Image("finsihRoundshetImage")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 100, height: 100)
+            
+            // Title
+            Text("End Your Round!")
+                .font(.system(size: 22, weight: .bold))
+                .padding(.bottom, 10)
+            
+            // Buttons
+            VStack(spacing: 14) {
+                
+                Button(action: onCompleteScorecard) {
+                    Text("Complete My Scorecard")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(Color(hex: "#0A1E3D"))
+                        .cornerRadius(14)
+                }
+                
+                Button(action: onEnterTotalScore) {
+                    Text("Enter a total Score")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(Color(hex: "#0A1E3D"))
+                        .cornerRadius(14)
+                }
+                
+                HStack(spacing: 12) {
+                    
+                    Button(action: onFinishAndExit) {
+                        Text("Finish and Exit Anyway")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(Color(hex: "#0A1E3D"))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .background(Color(hex: "#D4E7FF"))
+                            .cornerRadius(14)
+                    }
+                    
+                    Button(action: onDelete) {
+                        Image(systemName: "trash")
+                            .font(.system(size: 20))
+                            .foregroundColor(Color(hex: "#0A1E3D"))
+                            .frame(width: 56, height: 56)
+                            .background(Color(hex: "#D4E7FF"))
+                            .cornerRadius(14)
+                    }
+                }
+            }
+            .padding(.horizontal, 20)
+            
+           
+        }
+        .padding(.bottom, 30)
+        .frame(maxWidth: .infinity)
+        .background(
+            Color.white
+                .ignoresSafeArea(.container, edges: .bottom)
+        )
+        .cornerRadius(26, corners: [.topLeft, .topRight])
+    }
+}
+
+
+
+extension View {
+    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+        clipShape(RoundedCorner(radius: radius, corners: corners))
+    }
+}
+struct RoundedCorner: Shape {
+    var radius: CGFloat = .infinity
+    var corners: UIRectCorner = .allCorners
+
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(
+            roundedRect: rect,
+            byRoundingCorners: corners,
+            cornerRadii: CGSize(width: radius, height: radius)
+        )
+        return Path(path.cgPath)
     }
 }

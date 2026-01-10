@@ -22,7 +22,7 @@ struct CreateRoundRequest: Encodable {
 
 
 // MARK: - Create Round Response
-struct CreateRoundResponse: Decodable {
+struct CreateRoundResponse: Codable {
     let success: Bool
     let round_id: String?
     let status: String?
@@ -34,7 +34,7 @@ struct CreateRoundResponse: Decodable {
     let scores: [ScoreInfo]?
 }
 
-struct CourseInfo: Decodable {
+struct CourseInfo: Codable {
     let course_id: String
     let club_name: String
     let course_name: String
@@ -42,36 +42,69 @@ struct CourseInfo: Decodable {
     let holes_count: String
 }
 
-struct TeeInfo: Decodable {
+struct TeeInfo: Codable {
     let tee_id: String
     let tee_name: String
 }
 
-struct RoundPlayer: Decodable {
+struct RoundPlayer: Codable {
     let player_id: String
     let name: String
     let profile_pic: String?
 }
 
-struct HoleInfo: Decodable {
+struct HoleInfo: Codable {
     let hole_number: Int
     let par: Int
     let handicap: Int
     let yardage: Int
+    let locations: HoleLocations
+
+    enum CodingKeys: String, CodingKey {
+        case hole_number = "hole_number"
+        case par
+        case handicap
+        case yardage
+        case locations
+    }
 }
 
-struct ScoreInfo: Decodable {}
+struct HoleLocations: Codable {
+    let tee: HoleCoordinate
+    let mid: HoleCoordinate
+    let green: HoleCoordinate
+}
+
+struct HoleCoordinate: Codable {
+    let lat: Double
+    let lng: Double
+}
+
+import CoreLocation
+
+extension HoleInfo {
+    var mapCoordinates: [CLLocationCoordinate2D] {
+        [
+            CLLocationCoordinate2D(latitude: locations.tee.lat,   longitude: locations.tee.lng),
+            CLLocationCoordinate2D(latitude: locations.mid.lat,   longitude: locations.mid.lng),
+            CLLocationCoordinate2D(latitude: locations.green.lat, longitude: locations.green.lng)
+        ]
+    }
+}
+
+
+struct ScoreInfo: Codable {}
 
 
 // MARK: - Live Traffic Response
-struct LiveTrafficResponse: Decodable {
+struct LiveTrafficResponse: Codable {
     let success: Bool
     let course_id: String
     let active_players: [ActivePlayer]
     let meta: TrafficMeta
 }
 
-struct ActivePlayer: Decodable, Identifiable {
+struct ActivePlayer: Codable, Identifiable {
     var id: String { user_id }
 
     let user_id: String
@@ -86,23 +119,23 @@ struct ActivePlayer: Decodable, Identifiable {
     let updated_at: String
 }
 
-struct PlayerLocation: Decodable {
+struct PlayerLocation: Codable {
     let lat: Double
     let lng: Double
 }
 
-struct PlayerPace: Decodable {
+struct PlayerPace: Codable {
     let current_hole_minutes: Int
     let avg_per_hole: Double
 }
 
-struct PlayerTiming: Decodable {
+struct PlayerTiming: Codable {
     let start_time: String?
     let pace_per_hole: String?
     let estimated_finish: String?
 }
 
-struct TrafficMeta: Decodable {
+struct TrafficMeta: Codable {
     let total_players: Int
     let timestamp: String
 }
@@ -119,13 +152,13 @@ struct UpdateLiveTrafficRequest: Encodable {
     let token: String
 }
 
-struct UpdateLiveTrafficResponse: Decodable {
+struct UpdateLiveTrafficResponse: Codable {
     let success: Bool
     let message: String
     let data: LiveTrafficPlayerUpdate
 }
 
-struct LiveTrafficPlayerUpdate: Decodable {
+struct LiveTrafficPlayerUpdate: Codable {
     let user_id: String
     let name: String
     let course_id: String
@@ -134,4 +167,63 @@ struct LiveTrafficPlayerUpdate: Decodable {
     let round_id: String
     let status: String
     let updated_at: String
+}
+
+struct FinishRoundRequest: Codable {
+    let token: String
+    let round_id: String
+    let round_finished: Bool
+    let finish_context: FinishContext
+    let end_location: EndLocation
+    let scores: [Score]
+}
+
+struct FinishContext: Codable {
+    let reason: String
+    let user_id: Int
+}
+
+struct EndLocation: Codable {
+    let lat: Double
+    let lng: Double
+}
+
+struct Score: Codable {
+    let hole_number: Int
+    let player_id: String
+    let strokes: Int
+    let putts: Int
+    let fairway_hit: Bool
+    let gir: Bool
+}
+
+
+
+struct FinishRoundResponse: Codable {
+    let success: Bool
+    let message: String
+    let stats: RoundStats
+}
+
+struct RoundStats: Codable {
+    let round_id: String
+    let status: String
+    let finished_at: String
+    let course_par: Int
+    let player_stats: [PlayerStats]
+}
+
+struct PlayerStats: Codable {
+    let player_id: String
+    let holes_played: Int
+    let total_strokes: Int
+    let avg_strokes: Double
+    let pars_or_better: Int
+    let total_putts: Int
+    let avg_putts: Double
+    let fairways_hit: Int
+    let gir_hit: Int
+    let total_chips: Int
+    let total_sand: Int
+    let total_penalties: Int
 }

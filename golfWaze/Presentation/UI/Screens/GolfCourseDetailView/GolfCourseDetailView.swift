@@ -55,6 +55,7 @@ struct GolfCourseDetailView: View {
                 PlayTimePopup(
                     onNow: {
                         showPlayPopup = false
+                        //"19443"
                         coordinator.push(.createRound(courseID: courseID, courseName: viewModel.golfCourseName))
                     },
                     onFuture: {
@@ -94,8 +95,14 @@ struct GolfCourseDetailView: View {
                 Text(viewModel.address)
             }
             .padding(.bottom, 8)
+            
             AppButton(Strings.startARound, .primary) {
-                showPlayPopup = true
+                if let round = UserDefaults.standard.loadRound() {
+                    coordinator.push(.golfHole(courseID: courseID, response: round))
+                }
+                else{
+                    showPlayPopup = true
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -120,9 +120,9 @@ struct CoursesMapView: View {
                 nav.push(.golfCourseDetailView(courseID: course.id))
             },
             mapType: .satellite,     // 🛰 Satellite mode
-            initialZoom: 19,         // 🔎 closer view
+            initialZoom: 20,         // 🔎 closer view
             minZoom: 5,
-            maxZoom: 24
+            maxZoom: 26
         )
 
         .edgesIgnoringSafeArea(.all)

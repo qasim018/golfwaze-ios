@@ -22,17 +22,7 @@ final class CoursesListVM: ObservableObject {
 //                print("Error: \(error)")
 //            }
 //        }
-        APIClient.shared.getNearbyCourses(
-            lat: 33.88,
-            lng: -116.55
-        ) { result in
-            switch result {
-            case .success(let course):
-                self.courses = course.courses
-            case .failure(let error):
-                print("Error: \(error)")
-            }
-        }
+        getNearby()
 
     }
 
@@ -45,31 +35,26 @@ final class CoursesListVM: ObservableObject {
     }
 
     private func getNearby() {
-        
-//        APIClient.shared.getNearbyCourses { [weak self] result in
-//            DispatchQueue.main.async {
-//                switch result {
-//                case .success(let course):
-//                    self?.courses = course.courses
-//                case .failure(let error):
-//                    print("Error:", error)
-//                }
-//            }
-//        }
-        APIClient.shared.getNearbyCourses(
-            lat: 33.88,
-            lng: -116.55
-        ) { result in
-            switch result {
-            case .success(let course):
-                self.courses = course.courses
-            case .failure(let error):
-                print("Error: \(error)")
+        Task { @MainActor in
+            let lat = LocationManager.shared.latitude ?? 33.88
+            let lng = LocationManager.shared.longitude ?? -116.55
+            
+            APIClient.shared.getNearbyCourses(
+                lat: lat,
+                lng: lng
+            ) { [weak self] result in
+                guard let self = self else { return }
+                
+                switch result {
+                case .success(let course):
+                    self.courses = course.courses
+                case .failure(let error):
+                    print("Error: \(error)")
+                }
             }
         }
-
-        
     }
+
     
     private func setupSearch() {
         $searchText
