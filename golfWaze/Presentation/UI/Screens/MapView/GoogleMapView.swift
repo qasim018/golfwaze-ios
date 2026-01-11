@@ -144,7 +144,7 @@ struct GoogleMapView: UIViewRepresentable {
                 if mapLinescoordinates.count >= 3 {
                     let tee = mapLinescoordinates[0]
                     let green = mapLinescoordinates[2]
-                    let bearing = GoogleMapView.bearingBetween(tee, green)
+                    let bearing = GoogleMapView.bearingBetween(green, tee)
                     mapView.animate(toBearing: bearing)
                 }
             }
