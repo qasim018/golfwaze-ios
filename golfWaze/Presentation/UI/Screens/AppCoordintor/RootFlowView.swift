@@ -43,6 +43,11 @@ struct RootFlowView: View {
         .onAppear {
             authCoordinator.moveToTabbar = {
                 appCoordinator.moveToTabbar()
+                
+                // for testing purpose only
+                
+                
+                
             }
         }
     }
