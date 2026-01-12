@@ -19,8 +19,32 @@ platform :ios do
   end
 
   # ---------- STAGING ----------
-  lane :staging do
-    ENV["APP_ENV"] = "STAGING"
+  #lane :staging do
+     # ENV["APP_ENV"] = "STAGING"
+
+     # increment_build_number
+
+     # build_app(
+     #   scheme: "golfWaze",
+      #  export_method: "app-store"
+      #)
+
+      #upload_to_testflight(
+      #  api_key: api_key,
+     #   distribute_external: true,
+     #   groups: ["External Testers"],
+     #   changelog: build_changelog
+    #  )
+   # end
+
+  # ---------- RELEASE (App Store Review) ----------
+  lane :release do
+    ENV["APP_ENV"] = "PRODUCTION"
+
+    # 🔒 Hard safety check
+    unless ENV["APP_ENV"] == "PRODUCTION"
+      UI.user_error!("❌ Release is only allowed in PRODUCTION environment")
+    end
 
     increment_build_number
 
@@ -29,11 +53,11 @@ platform :ios do
       export_method: "app-store"
     )
 
-    upload_to_testflight(
+    upload_to_app_store(
       api_key: api_key,
-      distribute_external: true,
-      groups: ["External Testers"],
-      changelog: build_changelog
+      submit_for_review: true,
+      automatic_release: false,
+      release_notes: build_changelog
     )
   end
 
