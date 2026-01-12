@@ -33,3 +33,14 @@ struct golfWazeApp: App {
         print("GMS SDK Version: \(GMSServices.sdkVersion())")
     }
 }
+
+
+enum AppEnvironment {
+    case staging
+    case production
+
+    static let current: AppEnvironment = {
+        let env = ProcessInfo.processInfo.environment["APP_ENV"] ?? "STAGING"
+        return env == "PRODUCTION" ? .production : .staging
+    }()
+}
