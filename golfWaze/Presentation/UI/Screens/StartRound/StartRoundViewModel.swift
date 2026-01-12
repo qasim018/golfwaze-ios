@@ -87,7 +87,7 @@ func mockRoundWithAllHoles() -> CreateRoundResponse {
         ),
         tee: TeeInfo(
             tee_id: "blue",
-            tee_name: "Blue",
+            tee_name: "Blue"
         ),
         players: [
             RoundPlayer(player_id: "3", name: "Umair Khan", profile_pic: nil)
