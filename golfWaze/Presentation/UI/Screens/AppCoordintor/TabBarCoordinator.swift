@@ -18,6 +18,7 @@ final class TabBarCoordinator: ObservableObject {
         case editProfile
         case golfHole(courseID: String, response: CreateRoundResponse)
         case createRound(courseID: String, courseName: String)
+        case scoreCardView
 
         static func == (lhs: Route, rhs: Route) -> Bool {
             switch (lhs, rhs) {

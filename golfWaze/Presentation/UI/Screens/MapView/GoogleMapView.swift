@@ -139,7 +139,7 @@ struct GoogleMapView: UIViewRepresentable {
             if context.coordinator.lastHoleHash != currentHoleHash {
                 context.coordinator.lastHoleHash = currentHoleHash
 
-                mapView.animate(with: GMSCameraUpdate.fit(bounds, withPadding: 130))
+                mapView.animate(with: GMSCameraUpdate.fit(bounds, withPadding: 90))
 
                 if mapLinescoordinates.count >= 3 {
                     let tee = mapLinescoordinates[0]

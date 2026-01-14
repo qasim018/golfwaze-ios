@@ -23,7 +23,7 @@ struct GolfHoleScreen: View {
     let token: String = SessionManager.load()?.accessToken ?? ""
     let courseId: String
     let response: CreateRoundResponse
-    
+    @EnvironmentObject var coordinator: TabBarCoordinator
     @State private var currentHoleIndex = 0
     
     var holes: [HoleInfo] {
@@ -107,7 +107,7 @@ struct GolfHoleScreen: View {
 
                 FinishRoundSheetView(
                     onCompleteScorecard: {
-                        showFinishSheet = false
+                        coordinator.push(.scoreCardView)
                     },
                     onEnterTotalScore: {
                         showFinishSheet = false

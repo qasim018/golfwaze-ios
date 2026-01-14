@@ -83,6 +83,8 @@ struct RootFlowView: View {
                 .environmentObject(tabBarCoordinator)
         case .createRound(let courseID, let courseName):
             StartRoundView(courseID: courseID,courseName: courseName).environmentObject(tabBarCoordinator)
+        case .scoreCardView:
+            ScorecardView().environmentObject(tabBarCoordinator)
         }
         
     }
