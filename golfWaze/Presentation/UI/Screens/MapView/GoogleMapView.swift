@@ -82,7 +82,8 @@ struct GoogleMapView: UIViewRepresentable {
     var minZoom: Float = 5
     var maxZoom: Float = 22
     var mapType: GMSMapViewType = .satellite
-
+    var currentHole: Int = 0
+    
     @Binding var zoomAction: ZoomAction?
     var onPinTap: ((CLLocationCoordinate2D) -> Void)?   // 👈 NEW
     
@@ -138,8 +139,11 @@ struct GoogleMapView: UIViewRepresentable {
 
             if context.coordinator.lastHoleHash != currentHoleHash {
                 context.coordinator.lastHoleHash = currentHoleHash
+//                
+//                let totalDistance = GoogleMapView.totalHoleDistance(mapLinescoordinates)
+//                let padding = GoogleMapView.dynamicPadding(for: totalDistance)
 
-                mapView.animate(with: GMSCameraUpdate.fit(bounds, withPadding: 90))
+                mapView.animate(with: GMSCameraUpdate.fit(bounds, withPadding: currentHole == 0 ? -70 : 90))
 
                 if mapLinescoordinates.count >= 3 {
                     let tee = mapLinescoordinates[0]
@@ -218,6 +222,30 @@ struct GoogleMapView: UIViewRepresentable {
             DispatchQueue.main.async { zoomAction = nil }
         }
     }
+    
+    static func totalHoleDistance(_ coords: [CLLocationCoordinate2D]) -> Double {
+        guard coords.count >= 3 else { return 0 }
+        let tee = coords[0]
+        let mid = coords[1]
+        let green = coords[2]
+
+        let d1 = distanceBetween(tee, mid)
+        let d2 = distanceBetween(mid, green)
+
+        return d1 + d2
+    }
+
+    static func dynamicPadding(for distance: Double) -> CGFloat {
+        switch distance {
+        case 0..<100:
+            return 160
+        case 100..<200:
+            return 130
+        default:
+            return 90
+        }
+    }
+
 
     // MARK: - Coordinator
     class Coordinator: NSObject, GMSMapViewDelegate {

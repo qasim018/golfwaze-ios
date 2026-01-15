@@ -61,7 +61,7 @@ struct GolfHoleScreen: View {
                 minZoom: 5,
                 maxZoom: 20,
                 mapType: .satellite,
-                zoomAction: $zoomAction
+                currentHole: currentHoleIndex, zoomAction: $zoomAction
             )
             .edgesIgnoringSafeArea(.all)
             
@@ -110,7 +110,7 @@ struct GolfHoleScreen: View {
                         coordinator.push(.scoreCardView)
                     },
                     onEnterTotalScore: {
-                        showFinishSheet = false
+                        coordinator.push(.scoreCardView)
                     },
                     onFinishAndExit: {
                         showFinishSheet = false
