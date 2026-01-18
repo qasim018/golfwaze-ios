@@ -25,6 +25,7 @@ class StartRoundViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var roundResponse: CreateRoundResponse?
+    @Published var allPlayers: [PlayerSheet] = []
 
     private let apiURL = URL(string:
         "https://golfwaze.com/dashbord/new_api.php?action=create_round"
@@ -63,6 +64,74 @@ class StartRoundViewModel: ObservableObject {
             self.isLoading = false
         }
     }
+    
+    func fetchPlayers() {
+        let urlString = "https://golfwaze.com/dashbord/new_api.php?action=get_players"
+        guard let url = URL(string: urlString) else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body: [String: Any] = [
+            "player_id": SessionManager.load()?.id ?? 0,
+            "token": SessionManager.load()?.accessToken ?? ""
+        ]
+
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
+        } catch {
+            print("Failed to encode request body:", error)
+            return
+        }
+
+        URLSession.shared.dataTask(with: request) { [weak self] data, _, _ in
+            guard let self = self, let data = data else { return }
+
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("RAW JSON 👉\n\(jsonString)")
+            }
+
+            do {
+                let response = try JSONDecoder().decode(PlayersResponse.self, from: data)
+
+                DispatchQueue.main.async {
+                    var index = 1
+                    var allPlayers: [PlayerSheet] = []
+
+                    for p in response.friends ?? [] {
+                        allPlayers.append(
+                            PlayerSheet(
+                                index: index,
+                                name: p.name,
+                                status: p.status.capitalized,
+                                imageURL: p.profilePic
+                            )
+                        )
+                        index += 1
+                    }
+
+                    for p in response.otherPlayers ?? [] {
+                        allPlayers.append(
+                            PlayerSheet(
+                                index: index,
+                                name: p.name,
+                                status: p.status.capitalized,
+                                imageURL: p.profilePic
+                            )
+                        )
+                        index += 1
+                    }
+
+                    self.allPlayers = allPlayers
+                }
+
+            } catch {
+                print("Players decode error:", error)
+            }
+        }.resume()
+    }
+
 }
 
 func mockRoundWithAllHoles() -> CreateRoundResponse {

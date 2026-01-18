@@ -22,14 +22,76 @@ final class ProfileViewModel: ObservableObject {
     @Published var roundsCount: Int = 1
     @Published var golfBagCount: Int = 1
 
-    // Course & round stats (display strings so placeholders can be "-")
     @Published var avgScore: String = "-"
     @Published var parOrBetter: String = "-"
 
-    // Swing & club stats
     @Published var driverYds: String = "- Yds"
     @Published var sevenIronYds: String = "- Yds"
+    @Published var basicProfile: BasicProfile?
+
+    init() {
+        fetchProfile()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(refreshProfile),
+            name: .profileUpdated,
+            object: nil
+        )
+    }
+    
+    @objc private func refreshProfile() {
+        fetchProfile()
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    func fetchProfile() {
+        guard let token = SessionManager.load()?.accessToken else { return }
+
+        let urlString = "https://golfwaze.com/dashbord/new_api.php?action=get_profile&token=\(token)"
+        guard let url = URL(string: urlString) else { return }
+
+        URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
+            guard let self = self, let data = data else { return }
+
+            if let json = String(data: data, encoding: .utf8) {
+                print("PROFILE RAW JSON 👉\n\(json)")
+            }
+
+            do {
+                let decoded = try JSONDecoder().decode(ProfileAPIResponse.self, from: data)
+
+                DispatchQueue.main.async {
+                    let basic = decoded.profile.basic
+                    let stats = decoded.profile.stats
+                    let course = decoded.profile.courseStats
+                    let swing = decoded.profile.swingClubStats
+                    self.basicProfile = decoded.profile.basic
+
+                    self.name = basic.name
+                    self.handicap = String(format: "%.1f", basic.handicap)
+
+                    self.friendCount = stats.friends
+                    self.roundsCount = stats.rounds
+                    self.golfBagCount = stats.golfBagItems
+
+                    self.avgScore = course.avgScore != nil ? String(format: "%.1f", course.avgScore!) : "-"
+                    self.parOrBetter = course.parOrBetter != nil ? String(format: "%.1f", course.parOrBetter!) : "-"
+
+                    self.driverYds = swing.driverDistance != nil ? "\(Int(swing.driverDistance!)) Yds" : "- Yds"
+                    self.sevenIronYds = swing.iron7Distance != nil ? "\(Int(swing.iron7Distance!)) Yds" : "- Yds"
+                }
+
+            } catch {
+                print("Profile decode error:", error)
+            }
+
+        }.resume()
+    }
 }
+
 
 // MARK: - Main Screen
 struct ProfileScreen: View {
@@ -44,7 +106,9 @@ struct ProfileScreen: View {
                 presentationMode.wrappedValue.dismiss()
             } editAction: {
                 // Edit profile tapped
-                coordinator.push(.editProfile)
+                if let basic = vm.basicProfile {
+                    coordinator.push(.editProfile(data: basic))
+                }
             }
 
             ScrollView {
@@ -376,4 +440,8 @@ struct ProfileScreen_Previews: PreviewProvider {
                 .previewDevice("iPhone 12")
         }
     }
+}
+
+extension Notification.Name {
+    static let profileUpdated = Notification.Name("profileUpdated")
 }

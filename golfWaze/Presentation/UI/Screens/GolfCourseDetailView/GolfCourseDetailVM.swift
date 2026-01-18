@@ -29,6 +29,7 @@ final class GolfCourseDetailVM: ObservableObject {
     @Published var address: String = ""
     @Published var reviewText: String = ""
     @Published var valueValue: String = ""
+    @Published var players: [Player] = []
 
     private var courseID: String
 
@@ -92,5 +93,45 @@ struct CourseDetail: Codable {
         case holesCount = "holes_count"
         case parTotal = "par_total"
         case yardageTotal = "yardage_total"
+    }
+}
+
+struct PlayersResponse: Codable {
+    let success: Bool
+    let friends: [PlayerAPI]
+    let otherPlayers: [PlayerAPI]
+    let meta: PlayersMeta?
+
+    enum CodingKeys: String, CodingKey {
+        case success
+        case friends
+        case otherPlayers = "other_players"
+        case meta
+    }
+}
+
+struct PlayerAPI: Codable {
+    let playerID: String
+    let name: String
+    let profilePic: String
+    let lastPlayedAt: String
+    let status: String
+
+    enum CodingKeys: String, CodingKey {
+        case playerID = "player_id"
+        case name
+        case profilePic = "profile_pic"
+        case lastPlayedAt = "last_played_at"
+        case status
+    }
+}
+
+struct PlayersMeta: Codable {
+    let totalFriends: Int
+    let totalOtherPlayers: Int
+
+    enum CodingKeys: String, CodingKey {
+        case totalFriends = "total_friends"
+        case totalOtherPlayers = "total_other_players"
     }
 }

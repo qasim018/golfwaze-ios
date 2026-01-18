@@ -15,7 +15,7 @@ final class TabBarCoordinator: ObservableObject {
         case golfCourseDetailView(courseID: String)
         case friendsList
         case addFriends
-        case editProfile
+        case editProfile(data: BasicProfile)
         case golfHole(courseID: String, response: CreateRoundResponse)
         case createRound(courseID: String, courseName: String)
         case scoreCardView

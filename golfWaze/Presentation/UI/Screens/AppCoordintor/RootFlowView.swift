@@ -76,8 +76,8 @@ struct RootFlowView: View {
             FriendsScreen().environmentObject(tabBarCoordinator)
         case .addFriends:
             AddFriendsScreen().environmentObject(tabBarCoordinator)
-        case .editProfile:
-            EditProfileScreen().environmentObject(tabBarCoordinator)
+        case .editProfile(let basic):
+            EditProfileScreen(basicProfile: basic).environmentObject(tabBarCoordinator)
         case .golfHole(let courseID, let response):
             GolfHoleScreen(courseId: courseID, response: response)
                 .environmentObject(tabBarCoordinator)

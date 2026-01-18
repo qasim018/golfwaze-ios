@@ -292,8 +292,15 @@ struct StartRoundView: View {
     StartRoundView(courseID: "", courseName: "")
 }
 
+struct PlayerSheet: Identifiable, Hashable {
+    let id = UUID()
+    let index: Int
+    let name: String
+    let status: String
+    let imageURL: String
+}
 
-// MARK: ADD PLAYER SHEET + API CALL
+
 struct AddPlayerSheet: View {
 
     @Binding var showSheet: Bool
@@ -308,41 +315,22 @@ struct AddPlayerSheet: View {
     let userID = SessionManager.load()?.id ?? 0
     let token  = SessionManager.load()?.accessToken ?? ""
 
-    struct Player: Identifiable, Hashable {
-        let id = UUID()
-        let index: Int
-        let name: String
-        let status: String
-        let imageName: String
-    }
-
-    @State private var selectedPlayers: [Player] = [
+    @State private var selectedPlayers: [PlayerSheet] = [
         .init(index: 0,
               name: SessionManager.load()?.name ?? "Unknown",
               status: "Active",
-              imageName: "p1")
+              imageURL: "p1")
     ]
 
-    let friends: [Player] = [
-        .init(index: 1, name: "Eden Alley", status: "Active", imageName: "p1"),
-        .init(index: 2, name: "John Smith", status: "Active", imageName: "p1")
-    ]
-
-    let contacts: [Player] = [
-        .init(index: 3, name: "Adam Lee", status: "Active", imageName: "p1"),
-        .init(index: 4, name: "Maria Reed", status: "Active", imageName: "p1"),
-        .init(index: 5, name: "James Paul", status: "Active", imageName: "p1"),
-        .init(index: 6, name: "Chris Young", status: "Active", imageName: "p1")
-    ]
-
-    var filteredFriends: [Player] {
-        searchText.isEmpty ? friends :
-        friends.filter { $0.name.lowercased().contains(searchText.lowercased()) }
-    }
-
-    var filteredContacts: [Player] {
-        searchText.isEmpty ? contacts :
-        contacts.filter { $0.name.lowercased().contains(searchText.lowercased()) }
+    // MARK: - Filtered Players from API
+    var filteredPlayers: [PlayerSheet] {
+        if searchText.isEmpty {
+            return viewModel.allPlayers
+        } else {
+            return viewModel.allPlayers.filter {
+                $0.name.lowercased().contains(searchText.lowercased())
+            }
+        }
     }
 
     var body: some View {
@@ -387,11 +375,31 @@ struct AddPlayerSheet: View {
                                 HStack(spacing: 16) {
                                     ForEach(selectedPlayers) { player in
                                         VStack(spacing: 4) {
-                                            Image(player.imageName)
-                                                .resizable()
-                                                .scaledToFill()
-                                                .frame(width: 44, height: 44)
-                                                .clipShape(Circle())
+                                            AsyncImage(url: URL(string: player.imageURL)) { phase in
+                                                switch phase {
+                                                case .empty:
+                                                    ProgressView()
+                                                        .frame(width: 44, height: 44)
+
+                                                case .success(let image):
+                                                    image
+                                                        .resizable()
+                                                        .scaledToFill()
+                                                        .frame(width: 44, height: 44)
+                                                        .clipShape(Circle())
+
+                                                case .failure:
+                                                    Image(systemName: "person.circle.fill")
+                                                        .resizable()
+                                                        .scaledToFill()
+                                                        .frame(width: 44, height: 44)
+                                                        .foregroundColor(.gray)
+
+                                                @unknown default:
+                                                    EmptyView()
+                                                }
+                                            }
+
 
                                             Text(player.name)
                                                 .font(.system(size: 12))
@@ -401,22 +409,11 @@ struct AddPlayerSheet: View {
                             }
                         }
 
-                        Text("Friends on 18 birdies")
+                        Text("Players")
                             .font(.system(size: 15, weight: .semibold))
 
                         VStack(spacing: 16) {
-                            ForEach(filteredFriends) { player in
-                                playerRow(player: player,
-                                          isSelected: selectedPlayers.contains(player))
-                            }
-                        }
-
-                        Text("Other Contacts")
-                            .font(.system(size: 15, weight: .semibold))
-                            .padding(.top, 6)
-
-                        VStack(spacing: 16) {
-                            ForEach(filteredContacts) { player in
+                            ForEach(filteredPlayers) { player in
                                 playerRow(player: player,
                                           isSelected: selectedPlayers.contains(player))
                             }
@@ -470,9 +467,12 @@ struct AddPlayerSheet: View {
             .clipShape(RoundedRectangle(cornerRadius: 24))
             .ignoresSafeArea(edges: .bottom)
         }
+        .onAppear {
+            viewModel.fetchPlayers()
+        }
     }
 
-    func playerRow(player: Player, isSelected: Bool) -> some View {
+    func playerRow(player: PlayerSheet, isSelected: Bool) -> some View {
         Button {
             if isSelected {
                 selectedPlayers.removeAll { $0 == player }
@@ -485,11 +485,31 @@ struct AddPlayerSheet: View {
                     .foregroundColor(isSelected ? Color(hex: "#0E1A36") : .gray)
                     .font(.system(size: 22))
 
-                Image(player.imageName)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 44, height: 44)
-                    .clipShape(Circle())
+                AsyncImage(url: URL(string: player.imageURL)) { phase in
+                    switch phase {
+                    case .empty:
+                        ProgressView()
+                            .frame(width: 44, height: 44)
+
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 44, height: 44)
+                            .clipShape(Circle())
+
+                    case .failure:
+                        Image(systemName: "person.circle.fill")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 44, height: 44)
+                            .foregroundColor(.gray)
+
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(player.name)
@@ -506,3 +526,5 @@ struct AddPlayerSheet: View {
         .buttonStyle(.plain)
     }
 }
+
+
