@@ -39,12 +39,14 @@ struct CourseInfo: Codable {
     let club_name: String
     let course_name: String
     let location: CourseLocation
-    let holes_count: String
+    let holes_count: Int
 }
 
 struct TeeInfo: Codable {
     let tee_id: String
     let tee_name: String
+    let has_hole_locations: Bool
+    let total_yardage: Int?
 }
 
 struct RoundPlayer: Codable {
@@ -169,61 +171,3 @@ struct LiveTrafficPlayerUpdate: Codable {
     let updated_at: String
 }
 
-struct FinishRoundRequest: Codable {
-    let token: String
-    let round_id: String
-    let round_finished: Bool
-    let finish_context: FinishContext
-    let end_location: EndLocation
-    let scores: [Score]
-}
-
-struct FinishContext: Codable {
-    let reason: String
-    let user_id: Int
-}
-
-struct EndLocation: Codable {
-    let lat: Double
-    let lng: Double
-}
-
-struct Score: Codable {
-    let hole_number: Int
-    let player_id: String
-    let strokes: Int
-    let putts: Int
-    let fairway_hit: Bool
-    let gir: Bool
-}
-
-
-
-struct FinishRoundResponse: Codable {
-    let success: Bool
-    let message: String
-    let stats: RoundStats
-}
-
-struct RoundStats: Codable {
-    let round_id: String
-    let status: String
-    let finished_at: String
-    let course_par: Int
-    let player_stats: [PlayerStats]
-}
-
-struct PlayerStats: Codable {
-    let player_id: String
-    let holes_played: Int
-    let total_strokes: Int
-    let avg_strokes: Double
-    let pars_or_better: Int
-    let total_putts: Int
-    let avg_putts: Double
-    let fairways_hit: Int
-    let gir_hit: Int
-    let total_chips: Int
-    let total_sand: Int
-    let total_penalties: Int
-}

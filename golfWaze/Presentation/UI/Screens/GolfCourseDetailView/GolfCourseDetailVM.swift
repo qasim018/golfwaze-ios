@@ -30,7 +30,11 @@ final class GolfCourseDetailVM: ObservableObject {
     @Published var reviewText: String = ""
     @Published var valueValue: String = ""
     @Published var players: [Player] = []
+    @Published var isDeleting = false
+    @Published var deleteSuccess = false
+    @Published var deleteError: String?
 
+    
     private var courseID: String
 
     init(courseID: String) {
@@ -67,6 +71,33 @@ final class GolfCourseDetailVM: ObservableObject {
             }
         }.resume()
     }
+    
+    
+    func deleteRound(roundId: String) {
+        isDeleting = true
+        deleteError = nil
+
+        let urlString = "https://golfwaze.com/dashbord/new_api.php?action=delete_round&round_id=\(roundId)"
+        guard let url = URL(string: urlString) else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+
+        URLSession.shared.dataTask(with: request) { data, _, error in
+            DispatchQueue.main.async {
+                self.isDeleting = false
+
+                if let error = error {
+                    self.deleteError = error.localizedDescription
+                    return
+                }
+
+                self.deleteSuccess = true
+            }
+        }.resume()
+    }
+
+
 }
 
 struct GolfCourseDetailResponse: Codable {

@@ -7,31 +7,16 @@
 
 import SwiftUI
 
-struct HoleStatsModel {
-    var score: Int?
-    var putts: Int?
-    var fairwayHit: Bool?
-    var gir: Bool?
-    var chipShots: Int?
-    var sandShots: Int?
-    var penalties: Int?
-}
 
 struct HoleStatsView: View {
     
-    @State private var model = HoleStatsModel(
-        score: nil,
-        putts: 1,
-        fairwayHit: true,
-        gir: true,
-        chipShots: 1,
-        sandShots: 0,
-        penalties: 0
-    )
+    @State private var model = HoleStatsModel()
     
     @State private var currentHole = 1
     @State private var pars: [Int] = [3,4,5,4,3,5,4,4,3,5,4,3,4,5,3,4,4,5]
 
+    var finishHole: (() -> ())
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             
@@ -41,7 +26,9 @@ struct HoleStatsView: View {
                     // Header
                     HStack {
                         Spacer()
-                        Button(action: {}) {
+                        Button(action: {
+                            finishHole()
+                        }) {
                             Text("Finish hole")
                                 .font(.system(size: 16, weight: .medium))
                                 .foregroundColor(.red)
@@ -82,25 +69,45 @@ struct HoleStatsView: View {
                         }
                     }
                     .padding(.horizontal, 12)
-                    .padding(.bottom, 120) // Space for bottom bar
+                    .padding(.bottom, 120)
                 }
             }
             .background(Color(.systemGray6))
-            
-            
-            // 🔹 Fixed Bottom Navigation Bar
+            .onAppear {
+                loadCurrentHole()
+            }
+            .onChange(of: currentHole) { _ in
+                loadCurrentHole()
+            }
+            .onChange(of: model.score) { _ in saveCurrentHole() }
+            .onChange(of: model.putts) { _ in saveCurrentHole() }
+            .onChange(of: model.fairwayHit) { _ in saveCurrentHole() }
+            .onChange(of: model.gir) { _ in saveCurrentHole() }
+            .onChange(of: model.chipShots) { _ in saveCurrentHole() }
+            .onChange(of: model.sandShots) { _ in saveCurrentHole() }
+            .onChange(of: model.penalties) { _ in saveCurrentHole() }
+
             bottomNavigationBar
         }
     }
 
-    
-    // MARK: - Components
+    // MARK: - Storage Logic
+
+    func loadCurrentHole() {
+        model = ScorecardStorage.shared.load(hole: currentHole)
+    }
+
+    func saveCurrentHole() {
+        ScorecardStorage.shared.save(hole: currentHole, model: model)
+    }
+
+    // MARK: - Bottom Bar
+
     var bottomNavigationBar: some View {
         HStack {
             Button(action: {
                 if currentHole > 1 {
                     currentHole -= 1
-                    model.score = nil
                 }
             }) {
                 Image(systemName: "chevron.left")
@@ -123,7 +130,6 @@ struct HoleStatsView: View {
             Button(action: {
                 if currentHole < 18 {
                     currentHole += 1
-                    model.score = nil
                 }
             }) {
                 Image(systemName: "chevron.right")
@@ -140,6 +146,8 @@ struct HoleStatsView: View {
         .padding(.vertical, 16)
         .background(Color(.white))
     }
+
+    // MARK: - Components
 
     func scoreGrid(par: Int, selection: Binding<Int?>) -> some View {
         let values = scoreValues(for: par)
@@ -191,6 +199,7 @@ struct HoleStatsView: View {
         }
     }
 }
+
 
 // MARK: - Score Helpers
 
@@ -396,5 +405,7 @@ extension Array {
 }
 
 #Preview {
-    HoleStatsView()
+    HoleStatsView(finishHole: {
+        
+    })
 }

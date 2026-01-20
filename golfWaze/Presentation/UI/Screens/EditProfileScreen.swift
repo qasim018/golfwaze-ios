@@ -8,12 +8,13 @@
 import SwiftUI
 
 extension Data {
-    mutating func append(_ string: String) {
+    mutating func appendString(_ string: String) {
         if let data = string.data(using: .utf8) {
             append(data)
         }
     }
 }
+
 
 
 
@@ -52,31 +53,37 @@ final class EditProfileViewModel: ObservableObject {
         var body = Data()
 
         func addField(_ name: String, _ value: String) {
-            body.append("--\(boundary)\r\n")
-            body.append("Content-Disposition: form-data; name=\"\(name)\"\r\n\r\n")
-            body.append("\(value)\r\n")
+            body.appendString("--\(boundary)\r\n")
+            body.appendString("Content-Disposition: form-data; name=\"\(name)\"\r\n\r\n")
+            body.appendString("\(value)\r\n")
         }
 
+        // Add all fields
         addField("token", token)
         addField("name", name)
-        addField("username", username)
         addField("bio", bio)
         addField("gender", gender)
         addField("birth_year", birthYear)
         addField("country", country)
-        addField("mobile", mobile)
         addField("handicap", handicap)
 
-        if let image = image, let imageData = image.jpegData(compressionQuality: 0.8) {
-            body.append("--\(boundary)\r\n")
-            body.append("Content-Disposition: form-data; name=\"profile_image\"; filename=\"profile.jpg\"\r\n")
-            body.append("Content-Type: image/jpeg\r\n\r\n")
+        // Add image with correct JPEG format
+        if let image = image,
+           let imageData = image.jpegData(compressionQuality: 0.75) {
+
+            body.appendString("--\(boundary)\r\n")
+            // ✅ Changed to .jpg filename and image/jpeg content type
+            body.appendString("Content-Disposition: form-data; name=\"profile_image\"; filename=\"profile_image.jpg\"\r\n")
+            body.appendString("Content-Type: image/jpeg\r\n\r\n")
             body.append(imageData)
-            body.append("\r\n")
+            body.appendString("\r\n")
         }
 
-        body.append("--\(boundary)--\r\n")
+        body.appendString("--\(boundary)--\r\n")
         request.httpBody = body
+
+        // Add timeout
+        request.timeoutInterval = 30
 
         URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async {
@@ -85,7 +92,6 @@ final class EditProfileViewModel: ObservableObject {
 
             if let error = error {
                 print("❌ API Error:", error.localizedDescription)
-
                 DispatchQueue.main.async {
                     self?.errorMessage = error.localizedDescription
                     self?.showError = true
@@ -93,9 +99,20 @@ final class EditProfileViewModel: ObservableObject {
                 return
             }
 
+            // Check HTTP status code
+            if let httpResponse = response as? HTTPURLResponse {
+                print("📡 HTTP Status Code:", httpResponse.statusCode)
+                
+                if httpResponse.statusCode != 200 {
+                    DispatchQueue.main.async {
+                        self?.errorMessage = "Server error: \(httpResponse.statusCode)"
+                        self?.showError = true
+                    }
+                }
+            }
+
             guard let data = data else {
                 print("❌ No data received")
-
                 DispatchQueue.main.async {
                     self?.errorMessage = "No response from server"
                     self?.showError = true
@@ -103,30 +120,31 @@ final class EditProfileViewModel: ObservableObject {
                 return
             }
 
+            // Print raw response for debugging
             if let json = String(data: data, encoding: .utf8) {
                 print("📦 RAW RESPONSE:\n", json)
             }
 
             do {
                 let result = try JSONDecoder().decode(EditProfileResponse.self, from: data)
+                print("✅ Decoded successfully:", result)
+                
                 DispatchQueue.main.async {
                     self?.profileImageURL = result.profile_image_url ?? ""
                     self?.isSuccess = true
-                    DispatchQueue.main.async {
-                        NotificationCenter.default.post(name: .profileUpdated, object: nil)
-                    }
+                    NotificationCenter.default.post(name: .profileUpdated, object: nil)
                 }
             } catch {
                 print("❌ Decode error:", error.localizedDescription)
-
+                print("❌ Decoding error details:", error)
+                
                 DispatchQueue.main.async {
-                    self?.errorMessage = error.localizedDescription
+                    self?.errorMessage = "Failed to process response: \(error.localizedDescription)"
                     self?.showError = true
                 }
             }
 
         }.resume()
-
     }
 }
 

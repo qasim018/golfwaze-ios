@@ -7,6 +7,18 @@
 import SwiftUI
 
 struct GolfCourseScreen: View {
+    @EnvironmentObject var coordinator: TabBarCoordinator
+     @StateObject private var viewModel: GolfCourseDetailVM
+    @State private var showPlayPopup = false
+    @State private var showDeletePopup = false
+     let courseID: String
+    //courseID = 15733 knollwood
+     init(courseID: String) {
+         self.courseID = courseID
+         _viewModel = StateObject(
+             wrappedValue: GolfCourseDetailVM(courseID: courseID)
+         )
+     }
     
     var body: some View {
         ScrollView {
@@ -16,56 +28,109 @@ struct GolfCourseScreen: View {
                 headerSection
                 
                 // MARK: - Preview / Change Buttons
-                HStack(spacing: 16) {
-                    whiteButton("Preview Course")
-                    whiteButton("Change Course")
-                }
-                .padding(.horizontal)
+//                HStack(spacing: 16) {
+//                    whiteButton("Preview Course")
+//                    whiteButton("Change Course")
+//                }
+//                .padding(.horizontal)
                 
                 // MARK: - Start Round Block
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Avon Fields Golf Course")
+                VStack(alignment: .leading) {
+                    Text(viewModel.golfCourseName)
                         .font(Font.customFont(.robotoSemiBold, .pt14))
                         .foregroundColor(.black)
-                    
-                    Button(action: {
+                        .padding(.vertical, 5)
+                    HStack {
+                        if let _ = UserDefaults.standard.loadRound(), !viewModel.deleteSuccess {
+                            Button(action: {
+                                  showDeletePopup = true
+                              }) {
+                                  Image(systemName: "trash")
+                                      .foregroundColor(.red)
+                                      .frame(width: 44, height: 44)
+                                      .background(Color.white)
+                                      .cornerRadius(12)
+                                      .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+                              }
+                        }
                         
-                    }) {
-                        Text("Start a round")
-                            .font(Font.customFont(.robotoSemiBold, .pt14))
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color(hex: "#001F3F"))
-                            .foregroundColor(.white)
-                            .cornerRadius(12)
+                        Button(action: {
+                            if let round = UserDefaults.standard.loadRound() {
+                                coordinator.push(.golfHole(courseID: courseID, response: round))
+                            }
+                            else{
+                                showPlayPopup = true
+                            }
+                        }) {
+                            Text("Start a round")
+                                .font(Font.customFont(.robotoSemiBold, .pt14))
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color(hex: "#001F3F"))
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
+                        }
                     }
                 }
-                .padding()
                 .background(Color(hex: "#F5F7F9"))
                 .cornerRadius(12)
                 .shadow(color: .black.opacity(0.05), radius: 8)
                 .padding(.horizontal, 16)
                 
                 // MARK: - Tips / Stats / History
-                HStack(spacing: 16) {
-                    greyPillButton("Course Tips")
-                    greyPillButton("Course Stats")
-                    greyPillButton("Round History")
-                }
-                .padding(.horizontal, 16)
+//                HStack(spacing: 16) {
+//                    greyPillButton("Course Tips")
+//                    greyPillButton("Course Stats")
+//                    greyPillButton("Round History")
+//                }
+//                .padding(.horizontal, 16)
                 
                 // MARK: - Long Buttons
                 VStack(spacing: 16) {
-                    longGreyButton("Schedule Future Round")
+//                    longGreyButton("Schedule Future Round")
                     longGreyButton("Add Past Round")
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 20)
                 
                 Spacer().frame(height: 40)
             }
         }
         .background(Color(.white))
         .ignoresSafeArea(edges: .top)
+        .sheet(isPresented: $showPlayPopup) {
+            PlayTimePopup(
+                onNow: {
+                    showPlayPopup = false
+                    coordinator.push(.createRound(courseID: courseID, courseName: viewModel.golfCourseName))
+                },
+                onFuture: {
+                    showPlayPopup = false
+                },
+                onDismiss: {
+                    showPlayPopup = false
+                }
+            )
+            .presentationDetents([.height(216)])
+            .presentationDragIndicator(.hidden)
+        }
+        .sheet(isPresented: $showDeletePopup) {
+            DeleteRoundPopup {
+                if let round = UserDefaults.standard.loadRound() {
+                    viewModel.deleteRound(roundId: round.round_id ?? "")
+                }
+            } onDismiss: {
+                showDeletePopup = false
+            }
+            .presentationDetents([.height(160)])
+        }
+        .onChange(of: viewModel.deleteSuccess) { success in
+            if success {
+                viewModel.deleteSuccess = false
+                UserDefaults.standard.clearSavedRound()
+                showDeletePopup = false
+            }
+        }
+
     }
     
     
@@ -86,25 +151,25 @@ struct GolfCourseScreen: View {
             
             VStack(alignment: .leading, spacing: 6) {
                 
-                Text("Avon Fields Golf Course")
+                Text(viewModel.golfCourseName)
                     .font(Font.customFont(.robotoSemiBold, .pt14))
                     .foregroundColor(.white)
                 
-                Text("Grand Trunk road, Cantt city")
+                Text(viewModel.address)
                     .font(Font.customFont(.robotoMedium, .pt12))
                     .foregroundColor(.white.opacity(0.9))
                 
                 HStack(spacing: 10) {
-                    Text("4.5 miles")
+                    Text("\(viewModel.length)")
                         .font(Font.customFont(.robotoMedium, .pt11))
                     Circle().frame(width: 4, height: 4)
                     
-                    HStack(spacing: 4) {
-                        Image(systemName: "star.fill")
-                            .foregroundColor(.yellow)
-                        Text("3.6 (63)")
-                            .font(Font.customFont(.robotoMedium, .pt11))
-                    }
+//                    HStack(spacing: 4) {
+//                        Image(systemName: "star.fill")
+//                            .foregroundColor(.yellow)
+//                        Text(viewModel)
+//                            .font(Font.customFont(.robotoMedium, .pt11))
+//                    }
                 }
                 .font(Font.customFont(.robotoRegular, .pt14))
                 .foregroundColor(.white.opacity(0.9))
@@ -151,18 +216,78 @@ struct GolfCourseScreen: View {
     }
 }
 struct GolfCourseScreen_Previews: PreviewProvider {
-    //"iPhone SE (3rd generation)", "iPhone 15 Pro Max"
-
     static var previews: some View {
-        Group {
-            GolfCourseScreen()
-                .previewDevice(PreviewDevice(rawValue: "iPhone 15 Pro Max"))
-                .previewDisplayName("iPhone 15 Pro Max")
-            GolfCourseScreen()
-                .previewDevice(PreviewDevice(rawValue: "iPhone SE (3rd generation)"))
-                .previewDisplayName("iPhone SE (3rd generation)")
-            
+        GolfCourseScreen(courseID: "19433")
+    }
+}
+
+
+struct DeleteRoundPopup: View {
+    var deleteNow: () -> Void
+    var onDismiss: () -> Void
+    
+    @State private var isDeleting = false
+
+    var body: some View {
+        ZStack {
+            VStack {
+                Spacer()
+                
+                VStack(spacing: 18) {
+                    Text("End Your Round")
+                        .font(Font.customFont(.robotoSemiBold, .pt16))
+                        .foregroundColor(Color(hex: "#1A1F2F"))
+                        .padding(.top, 2)
+
+                    // DELETE BUTTON
+                    Button {
+                        isDeleting = true
+                        deleteNow()
+                    } label: {
+                        ZStack {
+                            if isDeleting {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .red))
+                            } else {
+                                Text("Delete Round")
+                                    .font(Font.customFont(.robotoSemiBold, .pt14))
+                                    .foregroundColor(.red)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(Color.gray.opacity(0.12))
+                        .cornerRadius(14)
+                    }
+                    .disabled(isDeleting)
+
+                    // CANCEL BUTTON
+                    Button(action: onDismiss) {
+                        Text("Not Now")
+                            .font(Font.customFont(.robotoSemiBold, .pt14))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(Color.gray.opacity(0.12))
+                            .foregroundColor(Color.black)
+                            .cornerRadius(14)
+                    }
+                    .disabled(isDeleting)
+                }
+                .padding(24)
+                .frame(maxWidth: .infinity)
+                .background(
+                    Color.white
+                        .clipShape(
+                            .rect(
+                                topLeadingRadius: 22,
+                                topTrailingRadius: 22
+                            )
+                        )
+                )
+            }
+            .ignoresSafeArea(edges: .bottom)
         }
+        .animation(.spring(), value: true)
     }
 }
 
@@ -173,12 +298,12 @@ struct PlayTimePopup: View {
 
     var body: some View {
         ZStack {
-            
-            // Dimmed Background
-            Color.black.opacity(0.45)
-                .ignoresSafeArea()
-                .onTapGesture { onDismiss() }
-            
+//            
+//            // Dimmed Background
+//            Color.black.opacity(0.45)
+//                .ignoresSafeArea()
+//                .onTapGesture { onDismiss() }
+//            
             VStack {
                 Spacer()   // pushes popup to bottom
                 
@@ -232,3 +357,4 @@ struct PlayTimePopup: View {
         .animation(.spring(), value: true)
     }
 }
+

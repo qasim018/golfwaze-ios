@@ -196,23 +196,37 @@ struct HeaderArea: View {
                 HStack(alignment: .center, spacing: 16) {
                     // Profile image
                     ZStack {
-                        if let uiImage = UIImage(named: "profile_photo") {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .scaledToFill()
+                        if let urlString = viewModel.basicProfile?.profileImage,
+                           let url = URL(string: urlString) {
+
+                            AsyncImage(url: url) { phase in
+                                switch phase {
+                                case .empty:
+                                    ProgressView()
+                                        .frame(width: 74, height: 74)
+
+                                case .success(let image):
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+
+                                case .failure:
+                                    fallbackIcon
+
+                                @unknown default:
+                                    fallbackIcon
+                                }
+                            }
+
                         } else {
-                            // fallback circle with system image
-                            Image(systemName: "golfclub")
-                                .resizable()
-                                .scaledToFit()
-                                .padding(12)
-                                .foregroundColor(.white)
-                                .background(Color.gray.opacity(0.3))
+                            fallbackIcon
                         }
                     }
                     .frame(width: 74, height: 74)
                     .clipShape(Circle())
                     .overlay(Circle().stroke(Color.white.opacity(0.25), lineWidth: 2))
+
+                    
 
                     VStack(alignment: .leading, spacing: 8) {
                         Text(viewModel.name)
@@ -241,6 +255,15 @@ struct HeaderArea: View {
             .frame(maxWidth: .infinity)
         }
     }
+    var fallbackIcon: some View {
+        Image(systemName: "golfclub")
+            .resizable()
+            .scaledToFit()
+            .padding(12)
+            .foregroundColor(.white)
+            .background(Color.gray.opacity(0.3))
+    }
+
 }
 
 // MARK: - Handicap Badge

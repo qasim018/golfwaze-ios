@@ -309,6 +309,7 @@ struct AddPlayerSheet: View {
     @Binding var courseType: String
     @State private var searchText = ""
     @EnvironmentObject var coordinator: TabBarCoordinator
+    @State private var showChooseOtherCourseAlert = false
 
     @ObservedObject var viewModel: StartRoundViewModel
 
@@ -442,12 +443,16 @@ struct AddPlayerSheet: View {
 
                         await viewModel.createRound(req)
 
-                        if viewModel.roundResponse != nil {
+                        if let response = viewModel.roundResponse {
                             showSheet = false
-                            if let response = viewModel.roundResponse {
+                            
+                            if response.tee?.has_hole_locations == false {
+                                showChooseOtherCourseAlert = true
+                            } else {
                                 coordinator.push(.golfHole(courseID: courseID, response: response))
                             }
                         }
+
                     }
 
                 } label: {
@@ -470,6 +475,12 @@ struct AddPlayerSheet: View {
         .onAppear {
             viewModel.fetchPlayers()
         }
+        .alert("Choose another course", isPresented: $showChooseOtherCourseAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("This course has no hole locations. Please choose another course.")
+        }
+
     }
 
     func playerRow(player: PlayerSheet, isSelected: Bool) -> some View {

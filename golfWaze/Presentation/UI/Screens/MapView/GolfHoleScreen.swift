@@ -15,6 +15,7 @@ struct GolfHoleScreen: View {
     @State private var mapLinescoordinates: [CLLocationCoordinate2D] = []
     
     @StateObject var trafficVM = LiveTrafficViewModel()
+    @ObservedObject var finishRoundVM = FinishRoundViewModel()
     @State private var pollTimer: Timer?
     @State private var updateTimer: Timer?
     @EnvironmentObject var locationManager: LocationManager
@@ -25,6 +26,7 @@ struct GolfHoleScreen: View {
     let response: CreateRoundResponse
     @EnvironmentObject var coordinator: TabBarCoordinator
     @State private var currentHoleIndex = 0
+    @State private var showDeletePopup = false
     
     var holes: [HoleInfo] {
         response.holes ?? []
@@ -83,12 +85,49 @@ struct GolfHoleScreen: View {
         .onDisappear {
             stopPolling()
         }
+        .sheet(isPresented: $showDeletePopup) {
+            DeleteRoundPopup {
+                if let round = UserDefaults.standard.loadRound() {
+                    trafficVM.deleteRound(roundId: round.round_id ?? "")
+                }
+            } onDismiss: {
+                showDeletePopup = false
+            }
+            .presentationDetents([.height(160)])
+        }
         .onChange(of: currentHoleIndex) { newValue in
             // Update map lines when hole changes (iOS 15+ compatible)
             if let hole = currentHole {
                 mapLinescoordinates = holePathPoints(hole)
             }
         }
+        .onChange(of: trafficVM.deleteSuccess) { success in
+            if success {
+                trafficVM.deleteSuccess = false
+                UserDefaults.standard.clearSavedRound()
+                ScorecardStorage.shared.clearAll()
+                showDeletePopup = false
+                self.coordinator.popToRoot()
+            }
+        }
+        .onChange(of: finishRoundVM.finishSuccess) { success in
+            if success {
+                // Clear local round
+                UserDefaults.standard.clearSavedRound()
+                ScorecardStorage.shared.clearAll()
+                // Navigate back
+                coordinator.popToRoot()
+            }
+        }
+        .alert("Error", isPresented: .constant(finishRoundVM.errorMessage != nil)) {
+            Button("OK") {
+                finishRoundVM.errorMessage = nil
+            }
+        } message: {
+            Text(finishRoundVM.errorMessage ?? "")
+        }
+
+
     }
    
     private var finishOverlay: some View {
@@ -114,8 +153,32 @@ struct GolfHoleScreen: View {
                     },
                     onFinishAndExit: {
                         showFinishSheet = false
+                        let round_id = response.round_id ?? ""
+                        let userId = SessionManager.load()?.id ?? 0
+                        let request = FinishRoundRequest(
+                            token: SessionManager.load()?.accessToken ?? "",
+                            round_id: round_id,
+                            round_finished: true,
+                           
+                            finish_context: FinishContext(
+                                reason: "finished_round",
+                                user_id: userId
+                            ),
+                            total_score: TotalScore(
+                                player_id: "\(userId)",
+                                total_score: 0
+                            ),
+                            scores: [
+                                
+                            ]
+                        )
+                        
+                        finishRoundVM.finishRound(request: request)
                     },
                     onDelete: {
+                        showFinishSheet = false
+                        showDeletePopup = true
+                    }, onDismiss: {
                         showFinishSheet = false
                     }
                 )
@@ -242,6 +305,17 @@ struct GolfHoleScreen: View {
         ZStack {
             
             // CENTERED MAIN PILL
+            HStack {
+                
+                VStack(spacing: 8) {
+                    circleScoreButton(icon: "chevron.right") {
+                        coordinator.push(.scoreCardView)
+                    }
+                }
+                .padding(.leading, 12)
+                Spacer()
+            }
+            
             HStack(spacing: 0) {
                 
                 // LEFT (Back)
@@ -350,6 +424,28 @@ struct GolfHoleScreen: View {
                 .shadow(radius: 3)
         }
     }
+    
+    func circleScoreButton(icon: String, action: @escaping () -> Void) -> some View {
+        VStack(spacing: 10) {
+            Text("Scorecard")
+                .font(.system(size: 11, weight: .regular))
+                .foregroundColor(.black)
+
+            Button(action: action) {
+                Image(systemName: icon)
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(.white)
+                    .frame(width: 16, height: 16)
+                    .background(Color(hex: "#0A1E3D")) // dark navy like screenshot
+                    .clipShape(Circle())
+            }
+        }
+        .frame(width: 60, height: 60)
+        .background(Color.white)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: .black.opacity(0.12), radius: 8, y: 4)
+    }
+
 }
 
 #Preview {
@@ -363,9 +459,9 @@ struct GolfHoleScreen: View {
             club_name: "Sample Club",
             course_name: "Sample Course",
             location: CourseLocation(latitude: 0, longitude: 0, address: "", city: "", state: "", country: ""),
-            holes_count: "18"
+            holes_count: 18
         ),
-        tee: TeeInfo(tee_id: "tee_1", tee_name: "Blue"),
+        tee: TeeInfo(tee_id: "tee_1", tee_name: "Blue", has_hole_locations: false, total_yardage: 200),
         players: [
             RoundPlayer(player_id: "p1", name: "Alice", profile_pic: nil)
         ],
@@ -421,37 +517,6 @@ extension GolfHoleScreen {
             }
         }
     }
-    
-    func finishRoundApi(){
-        let requestModel = FinishRoundRequest(
-            token: token,
-            round_id: response.round_id ?? "",
-            round_finished: true,
-            finish_context: FinishContext(
-                reason: "finished_round",
-                user_id: SessionManager.load()?.id ?? 0
-            ),
-            end_location: EndLocation(
-                lat: 34.2925167,
-                lng: -118.4962613
-            ),
-            scores: [
-                Score(
-                    hole_number: 18,
-                    player_id: String(SessionManager.load()?.id ?? 0),
-                    strokes: 5,
-                    putts: 2,
-                    fairway_hit: true,
-                    gir: false
-                )
-            ]
-        )
-
-        Task {
-            await finishRoundAPI(requestModel: requestModel)
-        }
-
-    }
 
     func stopPolling() {
         print("🛑 Stopping Polling & Cancelling Tasks")
@@ -473,6 +538,7 @@ struct FinishRoundSheetView: View {
     var onEnterTotalScore: () -> Void
     var onFinishAndExit: () -> Void
     var onDelete: () -> Void
+    var onDismiss: () -> Void
     
     var body: some View {
         VStack(spacing: 20) {
@@ -487,7 +553,7 @@ struct FinishRoundSheetView: View {
             HStack {
                 Spacer()
                 Button {
-                    onFinishAndExit()
+                    onDismiss()
                 } label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 18, weight: .medium))
@@ -522,17 +588,17 @@ struct FinishRoundSheetView: View {
                         .background(Color(hex: "#0A1E3D"))
                         .cornerRadius(14)
                 }
-                
-                Button(action: onEnterTotalScore) {
-                    Text("Enter a total Score")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(Color(hex: "#0A1E3D"))
-                        .cornerRadius(14)
-                }
-                
+//                
+//                Button(action: onEnterTotalScore) {
+//                    Text("Enter a total Score")
+//                        .font(.system(size: 17, weight: .semibold))
+//                        .foregroundColor(.white)
+//                        .frame(maxWidth: .infinity)
+//                        .frame(height: 56)
+//                        .background(Color(hex: "#0A1E3D"))
+//                        .cornerRadius(14)
+//                }
+//                
                 HStack(spacing: 12) {
                     
                     Button(action: onFinishAndExit) {

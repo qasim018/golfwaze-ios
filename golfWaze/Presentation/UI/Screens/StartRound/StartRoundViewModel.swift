@@ -47,8 +47,8 @@ class StartRoundViewModel: ObservableObject {
             printRawJSON(data)
 
             let decoder = JSONDecoder()
-//            let response = try decoder.decode(CreateRoundResponse.self, from: data)
-            let response = mockRoundWithAllHoles()
+            let response = try decoder.decode(CreateRoundResponse.self, from: data)
+//            let response = mockRoundWithAllHoles()
             await MainActor.run {
                 self.roundResponse = response//mockRoundWithAllHoles()
                 UserDefaults.standard.saveRound(response)
@@ -152,11 +152,11 @@ func mockRoundWithAllHoles() -> CreateRoundResponse {
                 state: "",
                 country: ""
             ),
-            holes_count: "18"
+            holes_count: 18
         ),
         tee: TeeInfo(
             tee_id: "blue",
-            tee_name: "Blue",
+            tee_name: "Blue", has_hole_locations: true, total_yardage: 200,
         ),
         players: [
             RoundPlayer(player_id: "3", name: "Umair Khan", profile_pic: nil)
@@ -308,6 +308,10 @@ class LiveTrafficViewModel: ObservableObject {
     @Published var traffic: LiveTrafficResponse?
     @Published var coordinates: [CLLocationCoordinate2D] = []
 
+    @Published var isDeleting = false
+    @Published var deleteSuccess = false
+    @Published var deleteError: String?
+    
     private var currentTask: Task<Void, Never>?
 
     func cancelRequests() {
@@ -372,6 +376,31 @@ class LiveTrafficViewModel: ObservableObject {
             }
         }
     }
+
+    
+    func deleteRound(roundId: String) {
+        isDeleting = true
+        deleteError = nil
+
+        let urlString = "https://golfwaze.com/dashbord/new_api.php?action=delete_round&round_id=\(roundId)"
+        guard let url = URL(string: urlString) else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+
+        URLSession.shared.dataTask(with: request) { data, _, error in
+            DispatchQueue.main.async {
+                self.isDeleting = false
+
+                if let error = error {
+                    self.deleteError = error.localizedDescription
+                    return
+                }
+
+                self.deleteSuccess = true
+            }
+        }.resume()
+    }
 }
 
 extension LiveTrafficViewModel {
@@ -433,37 +462,72 @@ extension UserDefaults {
     }
 }
 
+import Combine
 
+final class FinishRoundViewModel: ObservableObject {
+    
+    @Published var isLoading = false
+    @Published var finishSuccess = false
+    @Published var errorMessage: String?
+    
+    private var cancellables = Set<AnyCancellable>()
+    
+    func finishRound(request: FinishRoundRequest) {
+        isLoading = true
+        errorMessage = nil
+        
+        finishRoundPublisher(requestBody: request)
+            .sink { [weak self] completion in
+                self?.isLoading = false
+                
+                switch completion {
+                case .finished:
+                    break
+                    
+                case .failure(let error):
+                    self?.errorMessage = error.localizedDescription
+                }
+                
+            } receiveValue: { [weak self] response in
+                if response.success {
+                    self?.finishSuccess = true
+                } else {
+                    self?.errorMessage = response.message
+                }
+            }
+            .store(in: &cancellables)
+    }
 
-func finishRoundAPI(requestModel: FinishRoundRequest) async {
-    
-    guard let url = URL(string: "https://golfwaze.com/dashbord/new_api.php?action=finish_round") else {
-        print("❌ Invalid URL")
-        return
+    func finishRoundPublisher(requestBody: FinishRoundRequest) -> AnyPublisher<FinishRoundResponse, Error> {
+        let urlString = "https://golfwaze.com/dashbord/new_api.php?action=finish_round"
+        
+        guard let url = URL(string: urlString) else {
+            return Fail(error: NSError(domain: "Invalid URL", code: 0))
+                .eraseToAnyPublisher()
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        do {
+            let data = try JSONEncoder().encode(requestBody)
+            request.httpBody = data
+        } catch {
+            return Fail(error: error).eraseToAnyPublisher()
+        }
+        
+        return URLSession.shared.dataTaskPublisher(for: request)
+            .tryMap { output in
+                if let jsonString = String(data: output.data, encoding: .utf8) {
+                    print("Finish Round RAW 👉\n\(jsonString)")
+                }
+                
+                return output.data
+            }
+            .decode(type: FinishRoundResponse.self, decoder: JSONDecoder())
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
     }
-    
-    var request = URLRequest(url: url)
-    request.httpMethod = "POST"
-    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    
-    do {
-        let bodyData = try JSONEncoder().encode(requestModel)
-        request.httpBody = bodyData
-        
-        print("📤 Request JSON:")
-        print(String(data: bodyData, encoding: .utf8) ?? "")
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        print("📥 Raw Response:")
-        print(String(data: data, encoding: .utf8) ?? "")
-        
-        let decoded = try JSONDecoder().decode(FinishRoundResponse.self, from: data)
-        
-        print("✅ Decoded Response:")
-        print(decoded)
-        
-    } catch {
-        print("❌ API Error:", error.localizedDescription)
-    }
+
 }
