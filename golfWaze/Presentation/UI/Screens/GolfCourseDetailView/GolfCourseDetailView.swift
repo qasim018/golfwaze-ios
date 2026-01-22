@@ -22,12 +22,12 @@ struct GolfCourseDetailView: View {
      @StateObject private var viewModel: GolfCourseDetailVM
     @State private var showPlayPopup = false
 
-     let courseID: String
+     let course: CourseDetail
 
-     init(courseID: String) {
-         self.courseID = courseID
+    init(course: CourseDetail) {
+         self.course = course
          _viewModel = StateObject(
-             wrappedValue: GolfCourseDetailVM(courseID: courseID)
+            wrappedValue: GolfCourseDetailVM(courseID: course.id ?? "")
          )
      }
     
@@ -56,7 +56,7 @@ struct GolfCourseDetailView: View {
                     onNow: {
                         showPlayPopup = false
                         //"19443"
-                        coordinator.push(.createRound(courseID: courseID, courseName: viewModel.golfCourseName))
+                        coordinator.push(.createRound(course: viewModel.courseDetail ?? course))
                     },
                     onFuture: {
                         showPlayPopup = false
@@ -98,7 +98,7 @@ struct GolfCourseDetailView: View {
             
             AppButton(Strings.startARound, .primary) {
                 if let round = UserDefaults.standard.loadRound() {
-                    coordinator.push(.golfHole(courseID: courseID, response: round))
+                    coordinator.push(.golfHole(course: course, response: round))
                 }
                 else{
                     showPlayPopup = true
@@ -384,7 +384,7 @@ struct GolfCourseDetailView: View {
 
 struct GolfCourseDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        GolfCourseDetailView(courseID: "")
+//        GolfCourseDetailView(courseID: "")
     }
 }
 

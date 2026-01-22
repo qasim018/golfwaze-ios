@@ -22,11 +22,13 @@ struct GolfHoleScreen: View {
     @State private var showFinishSheet = false
 
     let token: String = SessionManager.load()?.accessToken ?? ""
-    let courseId: String
+    let course: CourseDetail
     let response: CreateRoundResponse
     @EnvironmentObject var coordinator: TabBarCoordinator
     @State private var currentHoleIndex = 0
     @State private var showDeletePopup = false
+    @State private var showUpdateCard = false
+    @State private var refreshID = UUID()
     
     var holes: [HoleInfo] {
         response.holes ?? []
@@ -79,7 +81,7 @@ struct GolfHoleScreen: View {
                 mapLinescoordinates = holePathPoints(hole)
             }
             
-            trafficVM.fetchLiveTraffic(courseId: courseId, token: token)
+            trafficVM.fetchLiveTraffic(courseId: course.id ?? "", token: token)
             startPolling()
         }
         .onDisappear {
@@ -94,6 +96,14 @@ struct GolfHoleScreen: View {
                 showDeletePopup = false
             }
             .presentationDetents([.height(160)])
+        }
+        .sheet(isPresented: $showUpdateCard, onDismiss: {
+            refreshID = UUID()
+        }) {
+            HoleStatsView(finishHole: {
+                showUpdateCard = false
+            })
+                .presentationDetents([.large])
         }
         .onChange(of: currentHoleIndex) { newValue in
             // Update map lines when hole changes (iOS 15+ compatible)
@@ -153,27 +163,7 @@ struct GolfHoleScreen: View {
                     },
                     onFinishAndExit: {
                         showFinishSheet = false
-                        let round_id = response.round_id ?? ""
-                        let userId = SessionManager.load()?.id ?? 0
-                        let request = FinishRoundRequest(
-                            token: SessionManager.load()?.accessToken ?? "",
-                            round_id: round_id,
-                            round_finished: true,
-                           
-                            finish_context: FinishContext(
-                                reason: "finished_round",
-                                user_id: userId
-                            ),
-                            total_score: TotalScore(
-                                player_id: "\(userId)",
-                                total_score: 0
-                            ),
-                            scores: [
-                                
-                            ]
-                        )
-                        
-                        finishRoundVM.finishRound(request: request)
+                        submitFinishRound()
                     },
                     onDelete: {
                         showFinishSheet = false
@@ -339,6 +329,9 @@ struct GolfHoleScreen: View {
                     Text("Enter Score")
                         .font(.system(size: 14))
                 }
+                .onTapGesture(perform: {
+                    showUpdateCard = true
+                })
                 .foregroundColor(Color(hex: "#1A1F2F"))
                 .frame(width: 120, height: 56)
                 .background(Color(hex: "#E7EFFF"))
@@ -430,8 +423,8 @@ struct GolfHoleScreen: View {
             Text("Scorecard")
                 .font(.system(size: 11, weight: .regular))
                 .foregroundColor(.black)
-
-            Button(action: action) {
+            
+            Button(action: {}) {
                 Image(systemName: icon)
                     .font(.system(size: 10, weight: .bold))
                     .foregroundColor(.white)
@@ -440,12 +433,75 @@ struct GolfHoleScreen: View {
                     .clipShape(Circle())
             }
         }
+        .onTapGesture {
+            action()
+        }
         .frame(width: 60, height: 60)
         .background(Color.white)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.12), radius: 8, y: 4)
     }
 
+    func submitFinishRound() {
+        showFinishSheet = false
+        
+        let userId = SessionManager.load()?.id ?? 0
+        
+        let scoresPayload = buildScoresPayload(playerId: userId)
+        let totalScore = calculateTotalScore()
+        
+        let request = FinishRoundRequest(
+            token: SessionManager.load()?.accessToken ?? "",
+            round_id: UserDefaults.standard.loadRound()?.round_id ?? "",
+            round_finished: true,
+            finish_context: FinishContext(
+                reason: "finished_round",
+                user_id: userId
+            ),
+            total_score: TotalScore(
+                player_id: "\(userId)",
+                total_score: totalScore
+            ),
+            scores: scoresPayload
+        )
+        
+        finishRoundVM.finishRound(request: request)
+    }
+    // MARK: - Totals
+    func buildScoresPayload(playerId: Int) -> [ScorePayload] {
+        var payload: [ScorePayload] = []
+
+        for hole in 1...18 {
+            let model = ScorecardStorage.shared.load(hole: hole)
+
+            // If no value exists at all → skip
+            if !model.hasAnyValue() {
+                continue
+            }
+
+            let score = ScorePayload(
+                hole_number: hole,
+                player_id: "\(playerId)",
+                strokes: model.score ?? 0,
+                putts: model.putts ?? 0,
+                fairway_hit: model.fairwayHit ?? false,
+                gir: model.gir ?? false,
+                chip_shots: model.chipShots ?? 0,
+                sand_shots: model.sandShots ?? 0,
+                penalties: model.penalties ?? 0
+            )
+
+            payload.append(score)
+        }
+
+        return payload
+    }
+
+    func calculateTotalScore() -> Int {
+        (1...18)
+            .compactMap { ScorecardStorage.shared.load(hole: $0).score }
+            .reduce(0, +)
+    }
 }
 
 #Preview {
@@ -475,19 +531,19 @@ struct GolfHoleScreen: View {
         ],
         scores: []
     )
-    GolfHoleScreen(courseId: "course_1", response: mockResponse)
+//    GolfHoleScreen(course: nil, response: mockResponse)
 }
 
 extension GolfHoleScreen {
 
     func startPolling() {
         // First immediate calls
-        trafficVM.fetchLiveTraffic(courseId: courseId, token: token)
+        trafficVM.fetchLiveTraffic(courseId: course.id ?? "", token: token)
         callUpdateAPI()
 
         // Fetch live traffic every 15s
         pollTimer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { _ in
-            trafficVM.fetchLiveTraffic(courseId: courseId, token: token)
+            trafficVM.fetchLiveTraffic(courseId: course.id ?? "", token: token)
         }
 
         // Update live traffic every 14s
@@ -503,7 +559,7 @@ extension GolfHoleScreen {
            let lng = locationManager.longitude {
             
             let payload = UpdateLiveTrafficRequest(
-                course_id: courseId,
+                course_id: course.id ?? "",
                 hole_number: currentHole?.hole_number ?? 1,
                 lat: lat,
                 lng: lng,

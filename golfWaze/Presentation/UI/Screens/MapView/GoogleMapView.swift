@@ -143,7 +143,7 @@ struct GoogleMapView: UIViewRepresentable {
 //                let totalDistance = GoogleMapView.totalHoleDistance(mapLinescoordinates)
 //                let padding = GoogleMapView.dynamicPadding(for: totalDistance)
 
-                mapView.animate(with: GMSCameraUpdate.fit(bounds, withPadding: currentHole == 0 ? -70 : 90))
+                mapView.animate(with: GMSCameraUpdate.fit(bounds, withPadding: (currentHole == 0 || currentHole == 6 || currentHole == 13 || currentHole == 16 || currentHole == 17) ? -70 : 90))
 
                 if mapLinescoordinates.count >= 3 {
                     let tee = mapLinescoordinates[0]

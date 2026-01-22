@@ -11,9 +11,10 @@ struct StartRoundView: View {
     @State private var selectedRoundType = "18 Holes"
     @State private var showCourseDropdown = false
     @State private var selectedCourseSplit = "(1-9)+(10-18)"
-
+    
+    @State private var showTeeSheet = false
     @StateObject var viewModel = StartRoundViewModel()
-
+    @State private var selectedTee: TeeInfoResponse? = nil
     @State private var startHole = 1
 
     let courseOptions = [
@@ -27,11 +28,15 @@ struct StartRoundView: View {
     
     let userID = SessionManager.load()?.id ?? 0
     let token  = SessionManager.load()?.accessToken ?? ""
-
-
-    init(courseID: String, courseName: String) {
-        _courseID = State(initialValue: courseID)   // ✅ Proper
-        _courseName = State(initialValue: courseName)   // ✅ Properinitialization
+    let course: CourseDetail
+    
+    init(course: CourseDetail) {
+        self.course = course
+        self.courseName = course.courseName ?? ""
+        self.courseID = course.id ?? ""
+        self.selectedTee = course.tees?.first ?? nil
+        _courseID = State(initialValue: course.id ?? "")   // ✅ Proper
+        _courseName = State(initialValue: course.courseName ?? "")   // ✅ Properinitialization
     }
 
 
@@ -147,14 +152,19 @@ struct StartRoundView: View {
 
                             settingsRow(
                                 title: "Tee Selection",
-                                value: "Black 3436 yds"
+                                value: selectedTee?.teeName ?? "Select Tee",
+                                onTap: {
+                                    showTeeSheet = true
+                                }
                             )
 
                             settingsRow(
                                 title: "Round Visibility",
                                 value: "Everyone",
                                 showChevron: true,
-                                showDivider: false
+                                showDivider: false, onTap: {
+                                    
+                                }
                             )
 
                         }
@@ -207,15 +217,42 @@ struct StartRoundView: View {
             // MARK: Overlay Sheet
             if showAddPlayerSheet {
                 AddPlayerSheet(
-                    showSheet: $showAddPlayerSheet,
-                    courseID: $courseID,startHole: $startHole,
+                    showSheet: $showAddPlayerSheet, selectedTee: selectedTee,
+                    course: course,startHole: $startHole,
                     courseType: $selectedCourseSplit,
                     viewModel: viewModel
                 )
                 .transition(.move(edge: .bottom))
                 .animation(.easeInOut, value: showAddPlayerSheet)
             }
+            if showTeeSheet {
+                ZStack {
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation {
+                                showTeeSheet = false
+                            }
+                        }
+
+                    VStack {
+                        Spacer()
+
+                        TeeSelectionSheet(
+                            tees: course.tees ?? [],
+                            selectedTee: $selectedTee,
+                            showSheet: $showTeeSheet
+                        )
+                        .transition(.move(edge: .bottom))
+                    }
+                    
+                }
+                .ignoresSafeArea(edges: .bottom)   // 👈 ADD THIS
+                .zIndex(2)
+            }
         }
+        
+
     }
 
     // MARK: Round Type Button
@@ -256,7 +293,8 @@ struct StartRoundView: View {
         title: String,
         value: String,
         showChevron: Bool = true,
-        showDivider: Bool = true
+        showDivider: Bool = true,
+        onTap: @escaping () -> Void
     ) -> some View {
 
         VStack(spacing: 0) {
@@ -280,16 +318,21 @@ struct StartRoundView: View {
                 }
             }
             .frame(height: 52)
+            .contentShape(Rectangle()) // Makes full row tappable
+            .onTapGesture {
+                onTap()
+            }
 
             if showDivider {
                 Divider()
             }
         }
     }
+
 }
 
 #Preview {
-    StartRoundView(courseID: "", courseName: "")
+    StartRoundView(course: CourseDetail(id: "", clubName: "", courseName: "", location: nil, thumbnailURL: "", holesCount: 18, parTotal: 2, yardageTotal: 233, tees: []))
 }
 
 struct PlayerSheet: Identifiable, Hashable {
@@ -304,7 +347,8 @@ struct PlayerSheet: Identifiable, Hashable {
 struct AddPlayerSheet: View {
 
     @Binding var showSheet: Bool
-    @Binding var courseID: String
+    let selectedTee: TeeInfoResponse?
+    var course: CourseDetail
     @Binding var startHole: Int
     @Binding var courseType: String
     @State private var searchText = ""
@@ -433,10 +477,10 @@ struct AddPlayerSheet: View {
 
                         let req = CreateRoundRequest(
                             owner_player_id: "\(userID)",
-                            course_id: courseID,
+                            course_id: course.id ?? "",
                             round_style: courseType,
                             start_hole: startHole,
-                            tee_id: "blue",
+                            tee_id: selectedTee?.teeName ?? "",
                             players: playerIDs,
                             token: token
                         )
@@ -449,7 +493,7 @@ struct AddPlayerSheet: View {
                             if response.tee?.has_hole_locations == false {
                                 showChooseOtherCourseAlert = true
                             } else {
-                                coordinator.push(.golfHole(courseID: courseID, response: response))
+                                coordinator.push(.golfHole(course: course, response: response))
                             }
                         }
 

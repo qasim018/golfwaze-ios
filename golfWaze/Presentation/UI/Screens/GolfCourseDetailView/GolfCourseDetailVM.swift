@@ -33,7 +33,7 @@ final class GolfCourseDetailVM: ObservableObject {
     @Published var isDeleting = false
     @Published var deleteSuccess = false
     @Published var deleteError: String?
-
+    var courseDetail: CourseDetail?
     
     private var courseID: String
 
@@ -58,6 +58,7 @@ final class GolfCourseDetailVM: ObservableObject {
                 let response = try JSONDecoder().decode(GolfCourseDetailResponse.self, from: data)
                 DispatchQueue.main.async {
                     let course = response.course
+                    self.courseDetail = response.course
                     self.holesCount = course?.holesCount ?? 0
                     self.par = course?.parTotal ?? 0
                     self.length = course?.yardageTotal ?? 0
@@ -105,7 +106,7 @@ struct GolfCourseDetailResponse: Codable {
     let course: CourseDetail?
 }
 
-struct CourseDetail: Codable {
+struct CourseDetail: Codable, Equatable, Hashable {
     let id: String?
     let clubName: String?
     let courseName: String?
@@ -114,6 +115,7 @@ struct CourseDetail: Codable {
     let holesCount: Int?
     let parTotal: Int?
     let yardageTotal: Int?
+    let tees: [TeeInfoResponse]?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -124,8 +126,24 @@ struct CourseDetail: Codable {
         case holesCount = "holes_count"
         case parTotal = "par_total"
         case yardageTotal = "yardage_total"
+        case tees
     }
 }
+
+struct TeeInfoResponse: Codable, Equatable, Hashable {
+    let teeName: String?
+    let teeYardage: Int?
+    let courseRating: Double?
+    let slopeRating: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case teeName = "tee_name"
+        case teeYardage = "tee_yardage"
+        case courseRating = "course_rating"
+        case slopeRating = "slope_rating"
+    }
+}
+
 
 struct PlayersResponse: Codable {
     let success: Bool

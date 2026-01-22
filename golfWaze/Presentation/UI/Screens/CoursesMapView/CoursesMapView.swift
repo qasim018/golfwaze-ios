@@ -117,7 +117,7 @@ struct CoursesMapView: View {
             coordinates: viewModel.coordinates,
             markers: viewModel.markers,
             onMarkerTap: { course in
-                nav.push(.golfCourseDetailView(courseID: course.id))
+                nav.push(.golfCourseDetailView(course: CourseDetail(id: course.id, clubName: course.clubName, courseName: course.courseName, location: nil, thumbnailURL: "", holesCount: 0, parTotal: 0, yardageTotal: 0, tees: [])))
             },
             mapType: .satellite,     // 🛰 Satellite mode
             initialZoom: 20,         // 🔎 closer view

@@ -37,7 +37,7 @@ struct Course: Codable, Identifiable {
 }
 
 
-struct CourseLocation: Codable {
+struct CourseLocation: Codable, Equatable, Hashable {
     let latitude: Double?
     let longitude: Double?
     let address: String?

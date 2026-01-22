@@ -37,7 +37,7 @@ struct DashboardTabView: View {
                     Images.locationPinGray
                     Text("Courses")
                 }
-            GolfCourseScreen(courseID: "19433")
+            GolfCourseScreen(course: CourseDetail(id: "19433", clubName: "", courseName: "", location: nil, thumbnailURL: "", holesCount: 0, parTotal: 0, yardageTotal: 0, tees: []))
                 .tabItem {
                     Images.playIcon
                     Text("Play")

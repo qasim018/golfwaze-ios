@@ -67,8 +67,8 @@ struct RootFlowView: View {
             ReviewCourseScreen().environmentObject(tabBarCoordinator)
         case .coursesList:
             CoursesListView().environmentObject(tabBarCoordinator)
-        case .golfCourseDetailView(let courseID):
-             GolfCourseDetailView(courseID: courseID)
+        case .golfCourseDetailView(let course):
+            GolfCourseDetailView(course: course)
                  .environmentObject(tabBarCoordinator)
         case .courseReview:
             ReviewsScreen().environmentObject(tabBarCoordinator)
@@ -78,11 +78,11 @@ struct RootFlowView: View {
             AddFriendsScreen().environmentObject(tabBarCoordinator)
         case .editProfile(let basic):
             EditProfileScreen(basicProfile: basic).environmentObject(tabBarCoordinator)
-        case .golfHole(let courseID, let response):
-            GolfHoleScreen(courseId: courseID, response: response)
+        case .golfHole(let course, let response):
+            GolfHoleScreen(course: course, response: response)
                 .environmentObject(tabBarCoordinator)
-        case .createRound(let courseID, let courseName):
-            StartRoundView(courseID: courseID,courseName: courseName).environmentObject(tabBarCoordinator)
+        case .createRound(let course):
+            StartRoundView(course: course).environmentObject(tabBarCoordinator)
         case .scoreCardView:
             ScorecardView().environmentObject(tabBarCoordinator)
         }

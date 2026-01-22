@@ -12,12 +12,12 @@ final class TabBarCoordinator: ObservableObject {
         case writeReview
         case coursesList
         case courseReview
-        case golfCourseDetailView(courseID: String)
+        case golfCourseDetailView(course: CourseDetail)
         case friendsList
         case addFriends
         case editProfile(data: BasicProfile)
-        case golfHole(courseID: String, response: CreateRoundResponse)
-        case createRound(courseID: String, courseName: String)
+        case golfHole(course: CourseDetail, response: CreateRoundResponse)
+        case createRound(course: CourseDetail)
         case scoreCardView
 
         static func == (lhs: Route, rhs: Route) -> Bool {
@@ -34,9 +34,9 @@ final class TabBarCoordinator: ObservableObject {
         func hash(into hasher: inout Hasher) {
             switch self {
 
-            case .golfHole(let courseID, let response):
+            case .golfHole(let course, let response):
                 hasher.combine("golfHole")
-                hasher.combine(courseID)
+                hasher.combine(course)
                 hasher.combine(response.round_id)
 
             default:

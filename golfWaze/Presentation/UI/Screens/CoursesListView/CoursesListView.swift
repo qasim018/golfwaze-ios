@@ -31,7 +31,7 @@ struct CoursesListView: View {
                                 CourseCardView(course: course)
                                     .onTapGesture {
                                         print("Tapped course ID:", course.id ?? "")
-                                        coordinator.push(.golfCourseDetailView(courseID: course.id ?? ""))
+                                        coordinator.push(.golfCourseDetailView(course: CourseDetail(id: course.id, clubName: course.clubName, courseName: course.courseName, location: nil, thumbnailURL: "", holesCount: 18, parTotal: 10, yardageTotal: 0, tees: [])))
                                     }
                             }
                         }
