@@ -7,15 +7,15 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "4077B9AD-D300-4E14-A6E3-53A280CD5012"
+            uuid = "CF45E098-4872-43FD-9BBA-EC69C4B44E37"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "golfWaze/Presentation/UI/Screens/GolfCourseDetailView/GolfCourseDetailView.swift"
+            filePath = "golfWaze/Presentation/UI/ScoreCardView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "59"
-            endingLineNumber = "59"
+            startingLineNumber = "139"
+            endingLineNumber = "139"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>

@@ -20,6 +20,7 @@ struct GolfCourseDetailView: View {
     
     @EnvironmentObject var coordinator: TabBarCoordinator
      @StateObject private var viewModel: GolfCourseDetailVM
+    @ObservedObject private var liveTrafficViewModel = LiveTrafficViewModel()
     @State private var showPlayPopup = false
 
      let course: CourseDetail
@@ -36,6 +37,19 @@ struct GolfCourseDetailView: View {
         Player(index: 2, name: "John Doe", status: "Active", imageName: "activeplayerImage"),
         Player(index: 3, name: "John Doe", status: "Active", imageName: "activeplayerImage")
     ]
+
+    private var activePlayersFromAPI: [Player] {
+        guard let traffic = liveTrafficViewModel.traffic else { return [] }
+
+        return traffic.active_players.enumerated().map { index, apiPlayer in
+            Player(
+                index: index + 1,
+                name: apiPlayer.name,
+                status: apiPlayer.status.capitalized,
+                imageName: apiPlayer.profile_pic ?? "activeplayerImage"
+            )
+        }
+    }
 
     
     var body: some View {
@@ -68,6 +82,16 @@ struct GolfCourseDetailView: View {
                 )
             }
         }
+        .onAppear {
+            liveTrafficViewModel.fetchLiveTraffic(
+                courseId: course.id ?? "",
+                token: SessionManager.load()?.accessToken ?? ""
+            )
+        }
+        .onDisappear {
+            liveTrafficViewModel.cancelRequests()
+        }
+
     }
     
     private func mainContent() -> some View {
@@ -78,7 +102,9 @@ struct GolfCourseDetailView: View {
                     coordinator.push(.courseReview)
                 }
 //            leaderboardCard()
-            activePlayersCard(players: samplePlayers)
+//            activePlayersCard(players: samplePlayers)
+           activePlayersCard(players: activePlayersFromAPI)
+            
         }
         //        .background(Color(hex: "#F5F7F9"))
         .padding(.horizontal, 16)
@@ -207,23 +233,39 @@ struct GolfCourseDetailView: View {
     
     private func activePlayersCard(players: [Player]) -> some View {
         VStack(alignment: .leading, spacing: 22) {
-            
-            // 🔹 Header Row
+
+            // 🔹 Header
             HStack {
                 Text("Active Players")
                     .font(Font.customFont(.robotoSemiBold, .pt14))
                     .foregroundColor(Color(hex: "#1A1F2F"))
-                
+
                 Spacer()
-                
+
                 Images.chevronRightBlack
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.black.opacity(0.9))
             }
-            
-            // 🔹 Player List
-            ForEach(players) { player in
-                playerRow(player)
+
+            ZStack {
+                VStack(spacing: 14) {
+                    // 🔹 Real players
+                    ForEach(players.prefix(4)) { player in
+                        playerRow(player)
+                    }
+
+                    // 🔹 Fill remaining slots (if < 4)
+                    ForEach(0..<max(0, 4 - players.count), id: \.self) { _ in
+                        playerRowPlaceholder()
+                    }
+                }
+
+                // 🔹 Empty state text (only when 0 players)
+                if players.isEmpty {
+                    Text("No live players found")
+                        .font(Font.customFont(.robotoMedium, .pt13))
+                        .foregroundColor(.gray)
+                }
             }
         }
         .padding(22)
@@ -232,42 +274,73 @@ struct GolfCourseDetailView: View {
                 .fill(Color.white)
         )
     }
+    
+    private func playerRowPlaceholder() -> some View {
+        playerRow(
+            Player(
+                index: 0,
+                name: "",
+                status: "",
+                imageName: ""
+            )
+        )
+        .opacity(0)   // keeps layout, hides content
+    }
 
     
     private func playerRow(_ player: Player) -> some View {
         HStack(spacing: 14) {
-            
+
             // 🔹 Rank Number Bubble
             Text("\(player.index)")
                 .font(Font.customFont(.robotoMedium, .pt11))
                 .foregroundColor(.black)
                 .frame(width: 22, height: 22)
-            
-           
                 .background(
                     Circle().fill(Color.blue.opacity(0.35))
                 )
-            
-            // 🔹 Avatar
-            Image(player.imageName)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 40, height: 40)
-                .clipShape(Circle())
-            
+
+            // 🔹 Avatar (Async with fallback)
+            AsyncImage(url: URL(string: player.imageName)) { phase in
+                switch phase {
+                case .empty:
+                    Image("activeplayerImage")
+                        .resizable()
+                        .scaledToFill()
+
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+
+                case .failure:
+                    Image("activeplayerImage")
+                        .resizable()
+                        .scaledToFill()
+
+                @unknown default:
+                    Image("activeplayerImage")
+                        .resizable()
+                        .scaledToFill()
+                }
+            }
+            .frame(width: 40, height: 40)
+            .clipShape(Circle())
+
             // 🔹 Name
             Text(player.name)
                 .font(Font.customFont(.robotoMedium, .pt13))
                 .foregroundStyle(Color(hex: "#1A1F2F"))
-            
+
             Spacer()
-            
+
             // 🔹 Status
             Text(player.status)
                 .font(Font.customFont(.robotoMedium, .pt12))
                 .foregroundColor(Color.green)
         }
     }
+
 
     
     private func leaderboardCard() -> some View {

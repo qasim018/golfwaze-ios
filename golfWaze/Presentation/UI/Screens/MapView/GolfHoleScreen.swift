@@ -100,9 +100,10 @@ struct GolfHoleScreen: View {
         .sheet(isPresented: $showUpdateCard, onDismiss: {
             refreshID = UUID()
         }) {
-            HoleStatsView(finishHole: {
+            HoleStatsView(startHole: currentHole?.hole_number ?? 1) {
                 showUpdateCard = false
-            })
+                moveToNextHole()
+            }
                 .presentationDetents([.large])
         }
         .onChange(of: currentHoleIndex) { newValue in
@@ -177,6 +178,15 @@ struct GolfHoleScreen: View {
             .ignoresSafeArea(edges: .bottom)
         }
         .animation(.easeInOut, value: showFinishSheet)
+    }
+    
+    func moveToNextHole() {
+        if currentHoleIndex < holes.count - 1 {
+            currentHoleIndex += 1
+        } else {
+            // Last hole reached
+            showFinishSheet = true
+        }
     }
 
     
@@ -689,6 +699,7 @@ struct FinishRoundSheetView: View {
         )
         .cornerRadius(26, corners: [.topLeft, .topRight])
     }
+    
 }
 
 

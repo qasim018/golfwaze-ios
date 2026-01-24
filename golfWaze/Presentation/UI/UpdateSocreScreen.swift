@@ -17,6 +17,12 @@ struct HoleStatsView: View {
 
     var finishHole: (() -> ())
     
+    // ✅ Custom initializer
+    init(startHole: Int = 1, finishHole: @escaping (() -> ())) {
+        self._currentHole = State(initialValue: startHole)
+        self.finishHole = finishHole
+    }
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             
