@@ -157,12 +157,23 @@ struct GoogleMapView: UIViewRepresentable {
         // ===============================
         // PLAYER MARKERS
         // ===============================
+//        coordinates.forEach {
+//            let m = GMSMarker(position: $0)
+//            m.icon = makeProfileMarkerIcon(image: UIImage(named: "p1") ?? UIImage())
+//            m.groundAnchor = CGPoint(x: 0.5, y: 1)
+//            m.map = mapView
+//        }
         coordinates.forEach {
-            let m = GMSMarker(position: $0)
-            m.icon = makeProfileMarkerIcon(image: UIImage(named: "p1") ?? UIImage())
-            m.groundAnchor = CGPoint(x: 0.5, y: 1)
-            m.map = mapView
+            let marker = GMSMarker(position: $0)
+
+            marker.icon = makeProfileMarkerIcon(
+                profileImage: UIImage(named: "p1") ?? UIImage()
+            )
+
+            marker.groundAnchor = CGPoint(x: 0.52, y: 1)
+            marker.map = mapView
         }
+
 
         // ===============================
         // TEE / MID / GREEN
@@ -375,4 +386,38 @@ struct GoogleMapView: UIViewRepresentable {
         UIGraphicsEndImageContext()
         return img
     }
+    
+    func makeProfileMarkerIcon(
+        profileImage: UIImage,
+        pinImage: UIImage = UIImage(named: "pin_blue")!
+    ) -> UIImage {
+
+        let size = CGSize(width: 60, height: 82) // pin size
+        let renderer = UIGraphicsImageRenderer(size: size)
+
+        return renderer.image { _ in
+
+            // 🔹 Draw pin background
+            pinImage.draw(in: CGRect(origin: .zero, size: size))
+
+            // 🔹 Profile image circle frame (top part)
+            let circleDiameter: CGFloat = 32
+            let circleX = (size.width - circleDiameter) / 2
+            let circleY: CGFloat = 7
+
+            let circleRect = CGRect(
+                x: circleX,
+                y: circleY,
+                width: circleDiameter,
+                height: circleDiameter
+            )
+
+            // 🔹 Clip to circle
+            UIBezierPath(ovalIn: circleRect).addClip()
+
+            // 🔹 Draw profile image
+            profileImage.draw(in: circleRect)
+        }
+    }
+
 }
