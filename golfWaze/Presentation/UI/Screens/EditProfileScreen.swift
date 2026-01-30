@@ -15,17 +15,13 @@ extension Data {
     }
 }
 
-
-
-
 final class EditProfileViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var isSuccess = false
     @Published var profileImageURL: String?
-
     @Published var showError: Bool = false
-
+    
     func updateProfile(
         name: String,
         username: String,
@@ -37,8 +33,11 @@ final class EditProfileViewModel: ObservableObject {
         handicap: String,
         image: UIImage?
     ) {
-        guard let token = SessionManager.load()?.accessToken else { return }
-
+        guard let token = SessionManager.load()?.accessToken else {
+            print("❌ Access token not found")
+            return
+        }
+        
         isLoading = true
         errorMessage = nil
         isSuccess = false
@@ -46,7 +45,6 @@ final class EditProfileViewModel: ObservableObject {
         let url = URL(string: "https://golfwaze.com/dashbord/new_api.php?action=edit_profile")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-
         let boundary = UUID().uuidString
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
 
@@ -69,22 +67,28 @@ final class EditProfileViewModel: ObservableObject {
 
         // Add image with correct JPEG format
         if let image = image,
-           let imageData = image.jpegData(compressionQuality: 0.75) {
-
+           let imageData = image.jpegData(compressionQuality: 0.25) {
             body.appendString("--\(boundary)\r\n")
-            // ✅ Changed to .jpg filename and image/jpeg content type
-            body.appendString("Content-Disposition: form-data; name=\"profile_image\"; filename=\"profile_image.jpg\"\r\n")
+            body.appendString("Content-Disposition: form-data; name=\"profile_pic\"; filename=\"profile_pic.jpg\"\r\n")
             body.appendString("Content-Type: image/jpeg\r\n\r\n")
             body.append(imageData)
             body.appendString("\r\n")
+        } else {
+            print("❌ Image data is nil or conversion failed.")
         }
 
         body.appendString("--\(boundary)--\r\n")
         request.httpBody = body
 
+        // Debug: Print the HTTP Body
+        if let bodyString = String(data: body, encoding: .utf8) {
+            print("📧 HTTP Body:\n", bodyString)
+        }
+
         // Add timeout
         request.timeoutInterval = 30
 
+        // Make the API call
         URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async {
                 self?.isLoading = false
@@ -102,15 +106,16 @@ final class EditProfileViewModel: ObservableObject {
             // Check HTTP status code
             if let httpResponse = response as? HTTPURLResponse {
                 print("📡 HTTP Status Code:", httpResponse.statusCode)
-                
                 if httpResponse.statusCode != 200 {
                     DispatchQueue.main.async {
                         self?.errorMessage = "Server error: \(httpResponse.statusCode)"
                         self?.showError = true
                     }
+                    return
                 }
             }
 
+            // Ensure data is received
             guard let data = data else {
                 print("❌ No data received")
                 DispatchQueue.main.async {
@@ -120,15 +125,16 @@ final class EditProfileViewModel: ObservableObject {
                 return
             }
 
-            // Print raw response for debugging
-            if let json = String(data: data, encoding: .utf8) {
-                print("📦 RAW RESPONSE:\n", json)
+            // Debug: Print raw response
+            if let jsonResponse = String(data: data, encoding: .utf8) {
+                print("📦 RAW RESPONSE:\n", jsonResponse)
             }
 
+            // Handle response
             do {
                 let result = try JSONDecoder().decode(EditProfileResponse.self, from: data)
                 print("✅ Decoded successfully:", result)
-                
+
                 DispatchQueue.main.async {
                     self?.profileImageURL = result.profile_image_url ?? ""
                     self?.isSuccess = true
@@ -136,16 +142,14 @@ final class EditProfileViewModel: ObservableObject {
                 }
             } catch {
                 print("❌ Decode error:", error.localizedDescription)
-                print("❌ Decoding error details:", error)
-                
                 DispatchQueue.main.async {
                     self?.errorMessage = "Failed to process response: \(error.localizedDescription)"
                     self?.showError = true
                 }
             }
-
         }.resume()
     }
+    
 }
 
 
@@ -167,6 +171,7 @@ struct EditProfileScreen: View {
     @State private var country: String
     @State private var mobile: String
     @State private var handicap: String
+    
 
     init(basicProfile: BasicProfile) {
         self.basicProfile = basicProfile
@@ -179,6 +184,12 @@ struct EditProfileScreen: View {
         _country = State(initialValue: basicProfile.country)
         _mobile = State(initialValue: basicProfile.mobile)
         _handicap = State(initialValue: "\(basicProfile.handicap)")
+       
+        if let urlString = basicProfile.profileImage,
+                 let url = URL(string: urlString) {
+                  loadImage(from: url)
+              }
+        
     }
 
     var body: some View {
@@ -242,11 +253,9 @@ struct EditProfileScreen: View {
                                     .frame(width: 140, height: 140)
                                     .clipShape(Circle())
                             }
-
                         }
                         .frame(width: 140, height: 140)
                         .clipShape(Circle())
-
                         Button(action: {
                             showImagePicker = true
                         }) {
@@ -321,6 +330,13 @@ struct EditProfileScreen: View {
                 coordinator.pop()
             }
         }
+        .onAppear {
+                   if let profileImage = basicProfile.profileImage,
+                      let urlString = profileImage as? String,
+                      let url = URL(string: urlString) {
+                       loadImage(from: url)
+                   }
+               }
     }
 
     // MARK: - Reusable Field
@@ -339,6 +355,22 @@ struct EditProfileScreen: View {
                 .font(Font.customFont(.robotoRegular, .pt14))
         }
     }
+
+    
+    private func loadImage(from url: URL) {
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let data = data, let image = UIImage(data: data) {
+                DispatchQueue.main.async {
+                    selectedImage = image
+                }
+            } else {
+                DispatchQueue.main.async {
+                    selectedImage = nil
+                }
+            }
+        }.resume()
+    }
+    
 }
 
 
