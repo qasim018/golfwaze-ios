@@ -29,21 +29,6 @@ struct HoleStatsView: View {
             ScrollView {
                 VStack(spacing: 0) {
                     
-                    // Header
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            finishHole()
-                        }) {
-                            Text("Finish hole")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(.red)
-                        }
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.top, 16)
-                    .padding(.bottom, 24)
-                    
                     VStack(spacing: 20) {
                         
                         CardSection(title: "Score") {
@@ -128,8 +113,15 @@ struct HoleStatsView: View {
             
             Spacer()
             
-            Text("Hole \(currentHole)")
-                .font(.system(size: 16, weight: .semibold))
+            Button(action: finishHole) {
+                Text("Finish hole \(currentHole)")
+                    .font(.system(size: 14, weight: .semibold))
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+                    .background(Color.black)
+                    .foregroundColor(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
             
             Spacer()
             
