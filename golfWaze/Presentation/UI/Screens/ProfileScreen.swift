@@ -5,6 +5,7 @@
 //  Created by Abdullah-Shahid  on 30/11/2025.
 //
 import SwiftUI
+import UIKit
 
 // MARK: - Color palette (adjust to match your design)
 extension Color {
@@ -28,6 +29,8 @@ final class ProfileViewModel: ObservableObject {
     @Published var driverYds: String = "- Yds"
     @Published var sevenIronYds: String = "- Yds"
     @Published var basicProfile: BasicProfile?
+    @Published var isDeletingAccount = false
+    @Published var actionErrorMessage: String?
 
     init() {
         fetchProfile()
@@ -90,20 +93,135 @@ final class ProfileViewModel: ObservableObject {
 
         }.resume()
     }
+
+    func deleteAccount() async -> Bool {
+        guard let session = SessionManager.load(),
+              let token = session.accessToken,
+              !token.isEmpty else {
+            await MainActor.run {
+                actionErrorMessage = "No active session found."
+            }
+            return false
+        }
+
+        await MainActor.run {
+            isDeletingAccount = true
+            actionErrorMessage = nil
+        }
+
+        let payload = DeleteAccountRequest(
+            token: token,
+            user_id: session.id,
+            device_id: SessionManager.currentDeviceId
+        )
+
+        do {
+            let response = try await performDeleteAccountRequest(payload: payload)
+
+            await MainActor.run {
+                isDeletingAccount = false
+                if !response.success {
+                    actionErrorMessage = response.message ?? "Account deletion failed."
+                }
+            }
+
+            return response.success
+        } catch {
+            await MainActor.run {
+                isDeletingAccount = false
+                actionErrorMessage = error.localizedDescription
+            }
+            return false
+        }
+    }
+
+    private func performDeleteAccountRequest(payload: DeleteAccountRequest) async throws -> DeleteAccountResponse {
+        let candidates = try buildDeleteAccountRequests(payload: payload)
+        var lastError: Error?
+
+        for request in candidates {
+            do {
+                let (data, response) = try await URLSession.shared.data(for: request)
+
+                if let httpResponse = response as? HTTPURLResponse,
+                   !(200...299).contains(httpResponse.statusCode) {
+                    lastError = NSError(
+                        domain: "ProfileDeleteAccount",
+                        code: httpResponse.statusCode,
+                        userInfo: [NSLocalizedDescriptionKey: "Delete account request failed with status \(httpResponse.statusCode)."]
+                    )
+                    continue
+                }
+
+                let decoded = try JSONDecoder().decode(DeleteAccountResponse.self, from: data)
+                return decoded
+            } catch {
+                lastError = error
+            }
+        }
+
+        throw lastError ?? NSError(
+            domain: "ProfileDeleteAccount",
+            code: -1,
+            userInfo: [NSLocalizedDescriptionKey: "Unable to delete account."]
+        )
+    }
+
+    private func buildDeleteAccountRequests(payload: DeleteAccountRequest) throws -> [URLRequest] {
+        let baseURLString = "https://golfwaze.com/dashbord/new_api.php?action=delete_account"
+        guard let baseURL = URL(string: baseURLString) else {
+            throw NSError(
+                domain: "ProfileDeleteAccount",
+                code: -2,
+                userInfo: [NSLocalizedDescriptionKey: "Invalid delete account URL."]
+            )
+        }
+
+        var jsonRequest = URLRequest(url: baseURL)
+        jsonRequest.httpMethod = "POST"
+        jsonRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        jsonRequest.httpBody = try JSONEncoder().encode(payload)
+
+        var components = URLComponents(string: baseURLString)
+        components?.queryItems = [
+            URLQueryItem(name: "action", value: "delete_account"),
+            URLQueryItem(name: "token", value: payload.token),
+            URLQueryItem(name: "user_id", value: String(payload.user_id)),
+            URLQueryItem(name: "device_id", value: payload.device_id)
+        ]
+
+        var queryRequest = URLRequest(url: components?.url ?? baseURL)
+        queryRequest.httpMethod = "POST"
+
+        return [jsonRequest, queryRequest]
+    }
+}
+
+struct DeleteAccountRequest: Codable {
+    let token: String
+    let user_id: Int
+    let device_id: String
+}
+
+struct DeleteAccountResponse: Codable {
+    let success: Bool
+    let message: String?
 }
 
 
 // MARK: - Main Screen
 struct ProfileScreen: View {
+    @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var coordinator: TabBarCoordinator
     @StateObject private var vm = ProfileViewModel()
-    @Environment(\.presentationMode) var presentationMode
+    @State private var showLogoutConfirmation = false
+    @State private var showDeleteConfirmation = false
 
     var body: some View {
         VStack(spacing: 0) {
             // Navigation bar & header area
             HeaderArea(viewModel: vm) {
-                presentationMode.wrappedValue.dismiss()
+                coordinator.moveToFirstTab()
             } editAction: {
                 // Edit profile tapped
                 if let basic = vm.basicProfile {
@@ -147,6 +265,22 @@ struct ProfileScreen: View {
                         NavigationRow(title: "Activity Feed") {
                             // action
                         }
+
+                        ActionRow(
+                            title: "Log Out",
+                            color: .softBlue,
+                            isLoading: false
+                        ) {
+                            showLogoutConfirmation = true
+                        }
+
+                        ActionRow(
+                            title: "Delete Account",
+                            color: .red,
+                            isLoading: vm.isDeletingAccount
+                        ) {
+                            showDeleteConfirmation = true
+                        }
                     }
                     .padding(.horizontal)
                     .padding(.bottom, 40)
@@ -158,6 +292,49 @@ struct ProfileScreen: View {
         }
         .edgesIgnoringSafeArea(.top)
         .background(Color(UIColor.systemBackground))
+        .confirmationDialog("Account actions", isPresented: $showLogoutConfirmation, titleVisibility: .visible) {
+            Button("Log Out", role: .destructive) {
+                handleLogout()
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("You will need to log in again to access your account.")
+        }
+        .confirmationDialog("Delete account?", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+            Button("Delete Account", role: .destructive) {
+                Task {
+                    await handleDeleteAccount()
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This removes the account and blocks login from this device.")
+        }
+        .alert("Account Error", isPresented: .constant(vm.actionErrorMessage != nil)) {
+            Button("OK") {
+                vm.actionErrorMessage = nil
+            }
+        } message: {
+            Text(vm.actionErrorMessage ?? "")
+        }
+    }
+
+    private func handleLogout() {
+        SessionManager.clear()
+        coordinator.popToRoot()
+        appCoordinator.moveToAuth()
+    }
+
+    private func handleDeleteAccount() async {
+        let deleted = await vm.deleteAccount()
+        guard deleted else { return }
+
+        SessionManager.clear()
+        SessionManager.blockLoginOnCurrentDevice()
+        coordinator.popToRoot()
+        await MainActor.run {
+            appCoordinator.moveToAuth()
+        }
     }
 }
 
@@ -412,6 +589,38 @@ struct NavigationRow: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(PlainButtonStyle())
+    }
+}
+
+struct ActionRow: View {
+    let title: String
+    let color: Color
+    let isLoading: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Text(title)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(color)
+
+                Spacer()
+
+                if isLoading {
+                    ProgressView()
+                        .tint(color)
+                } else {
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(color.opacity(0.7))
+                }
+            }
+            .padding()
+            .background(Color.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(PlainButtonStyle())
+        .disabled(isLoading)
     }
 }
 

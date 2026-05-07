@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct DashboardTabView: View {
+    @EnvironmentObject var coordinator: TabBarCoordinator
     
     init() {
         let appearance = UITabBarAppearance()
@@ -31,29 +32,34 @@ struct DashboardTabView: View {
     }
     
     var body: some View {
-        TabView() {
+        TabView(selection: $coordinator.selectedTab) {
             CoursesMapView()
+                .tag(TabBarCoordinator.Tab.courses)
                 .tabItem {
                     Images.locationPinGray
                     Text("Courses")
                 }
             GolfCourseScreen(course: CourseDetail(id: "19433", clubName: "", courseName: "", location: nil, thumbnailURL: "", holesCount: 0, parTotal: 0, yardageTotal: 0, tees: []))
+                .tag(TabBarCoordinator.Tab.play)
                 .tabItem {
                     Images.playIcon
                     Text("Play")
                 }
             CommunityScreen()
+                .tag(TabBarCoordinator.Tab.community)
                 .tabItem {
                     Images.groupIcon
                     Text("Community")
                 }
             TeeTimeListView()
+                .tag(TabBarCoordinator.Tab.teaTime)
                 .tabItem {
                     Images.calenderIcon
-                    Text("Bookings")
+                    Text("Tea Time")
                 }
             
             ProfileScreen()
+                .tag(TabBarCoordinator.Tab.profile)
                 .tabItem {
                     Images.profileIcon
                     Text("Profile")

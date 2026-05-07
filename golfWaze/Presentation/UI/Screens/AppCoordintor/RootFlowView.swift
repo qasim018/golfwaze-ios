@@ -30,6 +30,7 @@ struct RootFlowView: View {
             case .authenticated:
                 NavigationStack(path: $tabBarCoordinator.path) {
                     DashboardTabView()
+                        .environmentObject(appCoordinator)
                         .environmentObject(tabBarCoordinator)
                         .transition(.move(edge: .leading))
                         .navigationDestination(
@@ -43,6 +44,17 @@ struct RootFlowView: View {
         .onAppear {
             authCoordinator.moveToTabbar = {
                 appCoordinator.moveToTabbar()
+            }
+        }
+        .onChange(of: appCoordinator.state) { state in
+            switch state {
+            case .authenticated:
+                authCoordinator.popToRoot()
+            case .unauthenticated:
+                tabBarCoordinator.popToRoot()
+                authCoordinator.popToRoot()
+            case .splash:
+                break
             }
         }
     }

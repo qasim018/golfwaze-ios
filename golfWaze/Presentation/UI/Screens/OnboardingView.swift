@@ -13,15 +13,11 @@ struct OnboardingView: View {
                     .padding(.bottom, 36)
 
                 AppButton("Get Started", .primary) {
-                    let isLoggedIn = UserDefaults.standard.bool(forKey: "isLoggedIn")
-                       
-                       if isLoggedIn {
-                           // User already logged in — go to Tabbar
-                           coordinator.moveToTabbar?()
-                       } else {
-                           // Not logged in — go to Login screen
-                           coordinator.push(.loginScreen(fromSignup: false))
-                       }
+                    if SessionManager.hasActiveSession {
+                        coordinator.moveToTabbar?()
+                    } else {
+                        coordinator.push(.loginScreen(fromSignup: false))
+                    }
                 }
                 // Secondary Log in button
 //                AppButton("Log in", .secondary) {

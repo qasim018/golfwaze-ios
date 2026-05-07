@@ -57,10 +57,13 @@ struct CommunityScreen: View {
     @ViewBuilder
     private func headerView() -> some View {
         HStack {
-            
-            Image(systemName: "chevron.left")
-                .font(.system(size: 18))
-                .foregroundColor(.black)
+            Button(action: {
+                coordinator.moveToFirstTab()
+            }) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 18))
+                    .foregroundColor(.black)
+            }
             
             Text("Community")
                 .font(Font.customFont(.robotoSemiBold, .pt14))

@@ -21,6 +21,7 @@ struct TeeTime: Identifiable {
 struct TeeTimeListView: View {
     
     @State private var selectedID: UUID? = nil
+    @EnvironmentObject var coordinator: TabBarCoordinator
     
     let items: [TeeTime] = [
         .init(course: "Avon Fields Golf Course",
@@ -33,16 +34,7 @@ struct TeeTimeListView: View {
     ]
     
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            
-            mainContent()
-            
-            FloatingMapButton {
-                print("Map tapped")
-            }
-            .padding(.trailing, 24)
-            .padding(.bottom, 32)
-        }
+        mainContent()
     }
     // MARK: - COMPONENTS CONVERTED INTO FUNCTIONS
     
@@ -156,8 +148,10 @@ struct TeeTimeListView: View {
     
     func TeeTimeNavBar() -> some View {
         HStack {
-            Button(action: {}) {
-                Image(systemName: "xmark")
+            Button(action: {
+                coordinator.moveToFirstTab()
+            }) {
+                Image(systemName: "chevron.left")
                     .font(.system(size: 20, weight: .medium))
                     .foregroundColor(.black)
             }

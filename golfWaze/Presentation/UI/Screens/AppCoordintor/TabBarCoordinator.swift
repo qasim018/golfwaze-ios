@@ -8,6 +8,14 @@
 import SwiftUI
 
 final class TabBarCoordinator: ObservableObject {
+    enum Tab: Hashable {
+        case courses
+        case play
+        case community
+        case teaTime
+        case profile
+    }
+
     enum Route: Hashable {
         case writeReview
         case coursesList
@@ -47,6 +55,7 @@ final class TabBarCoordinator: ObservableObject {
 
     
     @Published var path = NavigationPath()
+    @Published var selectedTab: Tab = .courses
     
     func push(_ route: Route) {
         path.append(route)
@@ -59,5 +68,9 @@ final class TabBarCoordinator: ObservableObject {
     
     func popToRoot() {
         path = NavigationPath()
+    }
+
+    func moveToFirstTab() {
+        selectedTab = .courses
     }
 }

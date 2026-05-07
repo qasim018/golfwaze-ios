@@ -187,8 +187,8 @@ struct LoginScreen: View {
             }
             .background(Color(red: 0.1, green: 0.2, blue: 0.3))
             .cornerRadius(12)
-            .disabled(isLoading || username.isEmpty || password.isEmpty)
-            .opacity((isLoading || username.isEmpty || password.isEmpty) ? 0.6 : 1.0)
+            .disabled(isLoading || username.isEmpty || password.isEmpty || SessionManager.isLoginBlockedOnDevice)
+            .opacity((isLoading || username.isEmpty || password.isEmpty || SessionManager.isLoginBlockedOnDevice) ? 0.6 : 1.0)
             .padding(.horizontal, 24)
             .padding(.bottom, 20)
             
@@ -214,9 +214,19 @@ struct LoginScreen: View {
             .padding(.bottom, 30)
         }
         .background(Color.white)
+        .onAppear {
+            if SessionManager.isLoginBlockedOnDevice {
+                errorMessage = SessionManager.loginBlockedMessage
+            }
+        }
     }
     
     private func handleLogin() {
+        guard !SessionManager.isLoginBlockedOnDevice else {
+            errorMessage = SessionManager.loginBlockedMessage
+            return
+        }
+
         errorMessage = ""
         isLoading = true
         
