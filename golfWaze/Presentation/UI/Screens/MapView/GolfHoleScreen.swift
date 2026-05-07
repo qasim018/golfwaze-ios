@@ -553,7 +553,9 @@ extension GolfHoleScreen {
 
         // Fetch live traffic every 15s
         pollTimer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { _ in
-            trafficVM.fetchLiveTraffic(courseId: course.id ?? "", token: token)
+            Task { @MainActor in
+                trafficVM.fetchLiveTraffic(courseId: course.id ?? "", token: token)
+            }
         }
 
         // Update live traffic every 14s

@@ -97,14 +97,17 @@ struct GoogleMapView: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> GMSMapView {
-
         let camera = GMSCameraPosition(
             latitude: mapLinescoordinates.first?.latitude ?? 41.05,
             longitude: mapLinescoordinates.first?.longitude ?? -73.80,
             zoom: initialZoom
         )
 
-        let mapView = GMSMapView(frame: .zero, camera: camera)
+        let options = GMSMapViewOptions()
+        options.camera = camera
+        options.frame = .zero
+
+        let mapView = GMSMapView(options: options)
         mapView.mapType = mapType
         mapView.setMinZoom(minZoom, maxZoom: maxZoom)
         mapView.delegate = context.coordinator
@@ -114,116 +117,17 @@ struct GoogleMapView: UIViewRepresentable {
     }
 
     func updateUIView(_ mapView: GMSMapView, context: Context) {
-
         if context.coordinator.isDragging { return }
-
-        mapView.clear()
-
-        // ===============================
-        // DRAW LINE
-        // ===============================
-        if mapLinescoordinates.count >= 2 {
-
-            let path = GMSMutablePath()
-            mapLinescoordinates.forEach { path.add($0) }
-
-            let polyline = GMSPolyline(path: path)
-            polyline.strokeColor = .white
-            polyline.strokeWidth = 4
-            polyline.map = mapView
-            context.coordinator.polyline = polyline
-
-            let bounds = GMSCoordinateBounds(path: path)
-
-            let currentHoleHash = GoogleMapView.holeHash(mapLinescoordinates)
-
-            if context.coordinator.lastHoleHash != currentHoleHash {
-                context.coordinator.lastHoleHash = currentHoleHash
-//                
-//                let totalDistance = GoogleMapView.totalHoleDistance(mapLinescoordinates)
-//                let padding = GoogleMapView.dynamicPadding(for: totalDistance)
-
-                mapView.animate(with: GMSCameraUpdate.fit(bounds, withPadding: (currentHole == 0 || currentHole == 6 || currentHole == 13 || currentHole == 16 || currentHole == 17) ? -70 : 90))
-
-                if mapLinescoordinates.count >= 3 {
-                    let tee = mapLinescoordinates[0]
-                    let green = mapLinescoordinates[2]
-                    let bearing = GoogleMapView.bearingBetween(green, tee)
-                    mapView.animate(toBearing: bearing)
-                }
-            }
-        }
-
-        // ===============================
-        // PLAYER MARKERS
-        // ===============================
-//        coordinates.forEach {
-//            let m = GMSMarker(position: $0)
-//            m.icon = makeProfileMarkerIcon(image: UIImage(named: "p1") ?? UIImage())
-//            m.groundAnchor = CGPoint(x: 0.5, y: 1)
-//            m.map = mapView
-//        }
-        coordinates.forEach {
-            let marker = GMSMarker(position: $0)
-
-            marker.icon = makeProfileMarkerIcon(
-                profileImage: UIImage(named: "p1") ?? UIImage()
-            )
-
-            marker.groundAnchor = CGPoint(x: 0.52, y: 1)
-            marker.map = mapView
-        }
-
-
-        // ===============================
-        // TEE / MID / GREEN
-        // ===============================
-        if mapLinescoordinates.count >= 3 {
-
-            let tee = GMSMarker(position: mapLinescoordinates[0])
-            tee.icon = UIImage(named: "teeImage")
-            tee.isDraggable = true
-            tee.userData = "tee"
-            tee.groundAnchor = CGPoint(x: 0.5, y: 0.5)
-            tee.map = mapView
-            context.coordinator.teeMarker = tee
-
-            let mid = GMSMarker(position: mapLinescoordinates[1])
-            mid.icon = UIImage(named: "centerImage")
-            mid.isDraggable = true
-            mid.userData = "mid"
-            mid.groundAnchor = CGPoint(x: 0.5, y: 0.5)
-            mid.map = mapView
-            context.coordinator.midMarker = mid
-
-            let green = GMSMarker(position: mapLinescoordinates[2])
-            green.icon = UIImage(named: "holeImage")
-            green.isDraggable = false
-            green.userData = "green"
-            green.groundAnchor = CGPoint(x: 0.5, y: 0.5)
-            green.map = mapView
-            context.coordinator.greenMarker = green
-
-            let teeCoord = mapLinescoordinates[0]
-            let midCoord = mapLinescoordinates[1]
-            let greenCoord = mapLinescoordinates[2]
-
-            let teeMidDistance = GoogleMapView.distanceBetween(teeCoord, midCoord)
-            let teeMidCenter = GoogleMapView.midPoint(teeCoord, midCoord)
-
-            let teeMidLabel = GMSMarker(position: teeMidCenter)
-            teeMidLabel.icon = GoogleMapView.createDistanceLabel(distance: teeMidDistance)
-            teeMidLabel.map = mapView
-            context.coordinator.teeToMidLabel = teeMidLabel
-
-            let midGreenDistance = GoogleMapView.distanceBetween(midCoord, greenCoord)
-            let midGreenCenter = GoogleMapView.midPoint(midCoord, greenCoord)
-
-            let midGreenLabel = GMSMarker(position: midGreenCenter)
-            midGreenLabel.icon = GoogleMapView.createDistanceLabel(distance: midGreenDistance)
-            midGreenLabel.map = mapView
-            context.coordinator.midToGreenLabel = midGreenLabel
-        }
+        context.coordinator.syncRoute(
+            on: mapView,
+            routeCoordinates: mapLinescoordinates,
+            currentHole: currentHole
+        )
+        context.coordinator.syncPlayerMarkers(
+            on: mapView,
+            coordinates: coordinates,
+            markerIcon: makeProfileMarkerIcon(profileImage: UIImage(named: "p1") ?? UIImage())
+        )
 
         // ===============================
         // ZOOM ACTIONS
@@ -271,6 +175,7 @@ struct GoogleMapView: UIViewRepresentable {
 
         var teeToMidLabel: GMSMarker?
         var midToGreenLabel: GMSMarker?
+        var playerMarkers: [GMSMarker] = []
 
         var isDragging = false
         var lastHoleHash: Int?
@@ -320,6 +225,169 @@ struct GoogleMapView: UIViewRepresentable {
         func mapView(_ mapView: GMSMapView, didEndDragging marker: GMSMarker) {
             isDragging = false
         }
+
+        func syncRoute(on mapView: GMSMapView, routeCoordinates: [CLLocationCoordinate2D], currentHole: Int) {
+            guard routeCoordinates.count >= 2 else {
+                polyline?.map = nil
+                polyline = nil
+                clearStaticMarkers()
+                lastHoleHash = nil
+                return
+            }
+
+            let path = GMSMutablePath()
+            routeCoordinates.forEach { path.add($0) }
+
+            if polyline == nil {
+                let routePolyline = GMSPolyline(path: path)
+                routePolyline.strokeColor = .white
+                routePolyline.strokeWidth = 4
+                routePolyline.map = mapView
+                polyline = routePolyline
+            } else {
+                polyline?.path = path
+                polyline?.map = mapView
+            }
+
+            syncHoleMarkers(on: mapView, routeCoordinates: routeCoordinates)
+            syncDistanceLabels(on: mapView, routeCoordinates: routeCoordinates)
+
+            let currentHoleHash = GoogleMapView.holeHash(routeCoordinates)
+            guard lastHoleHash != currentHoleHash else { return }
+
+            lastHoleHash = currentHoleHash
+
+            let bounds = GMSCoordinateBounds(path: path)
+            let padding = GoogleMapView.cameraPadding(for: routeCoordinates, currentHole: currentHole)
+            mapView.animate(with: GMSCameraUpdate.fit(bounds, withPadding: padding))
+
+            if let start = routeCoordinates.first, let end = routeCoordinates.last {
+                mapView.animate(toBearing: GoogleMapView.bearingBetween(start, end))
+            }
+        }
+
+        func syncPlayerMarkers(on mapView: GMSMapView, coordinates: [CLLocationCoordinate2D], markerIcon: UIImage) {
+            playerMarkers.forEach { $0.map = nil }
+            playerMarkers.removeAll(keepingCapacity: true)
+
+            coordinates.forEach { coordinate in
+                let marker = GMSMarker(position: coordinate)
+                marker.icon = markerIcon
+                marker.groundAnchor = CGPoint(x: 0.52, y: 1)
+                marker.map = mapView
+                playerMarkers.append(marker)
+            }
+        }
+
+        private func syncHoleMarkers(on mapView: GMSMapView, routeCoordinates: [CLLocationCoordinate2D]) {
+            if routeCoordinates.indices.contains(0) {
+                teeMarker = updateMarker(
+                    teeMarker,
+                    position: routeCoordinates[0],
+                    icon: UIImage(named: "teeImage"),
+                    userData: "tee",
+                    isDraggable: true,
+                    on: mapView
+                )
+            }
+
+            if routeCoordinates.count >= 3 {
+                midMarker = updateMarker(
+                    midMarker,
+                    position: routeCoordinates[1],
+                    icon: UIImage(named: "centerImage"),
+                    userData: "mid",
+                    isDraggable: true,
+                    on: mapView
+                )
+            } else {
+                midMarker?.map = nil
+                midMarker = nil
+            }
+
+            if let lastCoordinate = routeCoordinates.last {
+                greenMarker = updateMarker(
+                    greenMarker,
+                    position: lastCoordinate,
+                    icon: UIImage(named: "holeImage"),
+                    userData: "green",
+                    isDraggable: false,
+                    on: mapView
+                )
+            }
+        }
+
+        private func syncDistanceLabels(on mapView: GMSMapView, routeCoordinates: [CLLocationCoordinate2D]) {
+            guard routeCoordinates.count >= 3 else {
+                teeToMidLabel?.map = nil
+                teeToMidLabel = nil
+                midToGreenLabel?.map = nil
+                midToGreenLabel = nil
+                return
+            }
+
+            let teeCoord = routeCoordinates[0]
+            let midCoord = routeCoordinates[1]
+            let greenCoord = routeCoordinates[2]
+
+            let teeMidDistance = GoogleMapView.distanceBetween(teeCoord, midCoord)
+            let teeMidCenter = GoogleMapView.midPoint(teeCoord, midCoord)
+            teeToMidLabel = updateLabelMarker(
+                teeToMidLabel,
+                position: teeMidCenter,
+                icon: GoogleMapView.createDistanceLabel(distance: teeMidDistance),
+                on: mapView
+            )
+
+            let midGreenDistance = GoogleMapView.distanceBetween(midCoord, greenCoord)
+            let midGreenCenter = GoogleMapView.midPoint(midCoord, greenCoord)
+            midToGreenLabel = updateLabelMarker(
+                midToGreenLabel,
+                position: midGreenCenter,
+                icon: GoogleMapView.createDistanceLabel(distance: midGreenDistance),
+                on: mapView
+            )
+        }
+
+        private func clearStaticMarkers() {
+            [teeMarker, midMarker, greenMarker, teeToMidLabel, midToGreenLabel].forEach { $0?.map = nil }
+            teeMarker = nil
+            midMarker = nil
+            greenMarker = nil
+            teeToMidLabel = nil
+            midToGreenLabel = nil
+        }
+
+        private func updateMarker(
+            _ marker: GMSMarker?,
+            position: CLLocationCoordinate2D,
+            icon: UIImage?,
+            userData: String,
+            isDraggable: Bool,
+            on mapView: GMSMapView
+        ) -> GMSMarker {
+            let resolvedMarker = marker ?? GMSMarker()
+            resolvedMarker.position = position
+            resolvedMarker.icon = icon
+            resolvedMarker.userData = userData
+            resolvedMarker.isDraggable = isDraggable
+            resolvedMarker.groundAnchor = CGPoint(x: 0.5, y: 0.5)
+            resolvedMarker.map = mapView
+            return resolvedMarker
+        }
+
+        private func updateLabelMarker(
+            _ marker: GMSMarker?,
+            position: CLLocationCoordinate2D,
+            icon: UIImage,
+            on mapView: GMSMapView
+        ) -> GMSMarker {
+            let resolvedMarker = marker ?? GMSMarker()
+            resolvedMarker.position = position
+            resolvedMarker.icon = icon
+            resolvedMarker.map = mapView
+            return resolvedMarker
+        }
     }
 
     // MARK: - Helpers
@@ -359,6 +427,17 @@ struct GoogleMapView: UIViewRepresentable {
         return radiansBearing * 180 / .pi
     }
 
+    static func cameraPadding(for coords: [CLLocationCoordinate2D], currentHole: Int) -> CGFloat {
+        let basePadding = dynamicPadding(for: totalHoleDistance(coords))
+
+        switch currentHole {
+        case 0, 6, 13, 16, 17:
+            return max(basePadding - 20, 70)
+        default:
+            return basePadding
+        }
+    }
+
     static func createDistanceLabel(distance: Double) -> UIImage {
         let label = UILabel(frame: CGRect(x: 0, y: 0, width: 70, height: 30))
         label.text = "\(Int(distance)) y"
@@ -389,7 +468,7 @@ struct GoogleMapView: UIViewRepresentable {
     
     func makeProfileMarkerIcon(
         profileImage: UIImage,
-        pinImage: UIImage = UIImage(named: "pin_blue")!
+        pinImage: UIImage = UIImage(named: "pin_blue") ?? UIImage()
     ) -> UIImage {
 
         let size = CGSize(width: 60, height: 82) // pin size
