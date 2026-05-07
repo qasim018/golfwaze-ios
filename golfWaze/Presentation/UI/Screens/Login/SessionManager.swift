@@ -14,6 +14,46 @@ struct UserSession: Codable {
     let profileImage: String?
     let handicap: Int?
     let accessToken: String?
+    let isGuest: Bool
+
+    init(
+        id: Int,
+        name: String?,
+        username: String?,
+        profileImage: String?,
+        handicap: Int?,
+        accessToken: String?,
+        isGuest: Bool
+    ) {
+        self.id = id
+        self.name = name
+        self.username = username
+        self.profileImage = profileImage
+        self.handicap = handicap
+        self.accessToken = accessToken
+        self.isGuest = isGuest
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case username
+        case profileImage
+        case handicap
+        case accessToken
+        case isGuest
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(Int.self, forKey: .id)
+        name = try container.decodeIfPresent(String.self, forKey: .name)
+        username = try container.decodeIfPresent(String.self, forKey: .username)
+        profileImage = try container.decodeIfPresent(String.self, forKey: .profileImage)
+        handicap = try container.decodeIfPresent(Int.self, forKey: .handicap)
+        accessToken = try container.decodeIfPresent(String.self, forKey: .accessToken)
+        isGuest = try container.decodeIfPresent(Bool.self, forKey: .isGuest) ?? false
+    }
 }
 
 
@@ -30,6 +70,19 @@ enum SessionManager {
         }
         UserDefaults.standard.set(true, forKey: isLoggedInKey)
     }
+
+    static func startGuestSession() {
+        let guestSession = UserSession(
+            id: 0,
+            name: "Guest User",
+            username: "guest",
+            profileImage: nil,
+            handicap: nil,
+            accessToken: nil,
+            isGuest: true
+        )
+        save(guestSession)
+    }
     
     static func load() -> UserSession? {
         guard let data = UserDefaults.standard.data(forKey: key) else { return nil }
@@ -39,6 +92,14 @@ enum SessionManager {
     static var hasActiveSession: Bool {
         guard let session = load() else { return false }
         return !(session.accessToken?.isEmpty ?? true)
+    }
+
+    static var hasAppAccess: Bool {
+        load() != nil
+    }
+
+    static var isGuestSession: Bool {
+        load()?.isGuest == true
     }
 
     static var currentDeviceId: String {

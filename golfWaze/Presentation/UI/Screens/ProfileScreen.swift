@@ -31,6 +31,7 @@ final class ProfileViewModel: ObservableObject {
     @Published var basicProfile: BasicProfile?
     @Published var isDeletingAccount = false
     @Published var actionErrorMessage: String?
+    @Published var isGuestMode = SessionManager.isGuestSession
 
     init() {
         fetchProfile()
@@ -51,6 +52,11 @@ final class ProfileViewModel: ObservableObject {
     }
 
     func fetchProfile() {
+        if SessionManager.isGuestSession {
+            applyGuestState()
+            return
+        }
+
         guard let token = SessionManager.load()?.accessToken else { return }
 
         let urlString = "https://golfwaze.com/dashbord/new_api.php?action=get_profile&token=\(token)"
@@ -92,6 +98,20 @@ final class ProfileViewModel: ObservableObject {
             }
 
         }.resume()
+    }
+
+    func applyGuestState() {
+        isGuestMode = true
+        name = "Guest User"
+        handicap = "-"
+        friendCount = 0
+        roundsCount = 0
+        golfBagCount = 0
+        avgScore = "-"
+        parOrBetter = "-"
+        driverYds = "- Yds"
+        sevenIronYds = "- Yds"
+        basicProfile = nil
     }
 
     func deleteAccount() async -> Bool {
@@ -216,6 +236,7 @@ struct ProfileScreen: View {
     @StateObject private var vm = ProfileViewModel()
     @State private var showLogoutConfirmation = false
     @State private var showDeleteConfirmation = false
+    @State private var showGuestExitConfirmation = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -231,6 +252,10 @@ struct ProfileScreen: View {
 
             ScrollView {
                 VStack(spacing: 16) {
+                    if vm.isGuestMode {
+                        guestModeCard
+                    }
+
                     // Quick stats row inside rounded card
                     StatsRowCard(friendCount: vm.friendCount,
                                  roundsCount: vm.roundsCount,
@@ -266,20 +291,30 @@ struct ProfileScreen: View {
                             // action
                         }
 
-                        ActionRow(
-                            title: "Log Out",
-                            color: .softBlue,
-                            isLoading: false
-                        ) {
-                            showLogoutConfirmation = true
-                        }
+                        if vm.isGuestMode {
+                            ActionRow(
+                                title: "Log In",
+                                color: .softBlue,
+                                isLoading: false
+                            ) {
+                                showGuestExitConfirmation = true
+                            }
+                        } else {
+                            ActionRow(
+                                title: "Log Out",
+                                color: .softBlue,
+                                isLoading: false
+                            ) {
+                                showLogoutConfirmation = true
+                            }
 
-                        ActionRow(
-                            title: "Delete Account",
-                            color: .red,
-                            isLoading: vm.isDeletingAccount
-                        ) {
-                            showDeleteConfirmation = true
+                            ActionRow(
+                                title: "Delete Account",
+                                color: .red,
+                                isLoading: vm.isDeletingAccount
+                            ) {
+                                showDeleteConfirmation = true
+                            }
                         }
                     }
                     .padding(.horizontal)
@@ -299,6 +334,14 @@ struct ProfileScreen: View {
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("You will need to log in again to access your account.")
+        }
+        .confirmationDialog("Exit guest mode?", isPresented: $showGuestExitConfirmation, titleVisibility: .visible) {
+            Button("Continue to Login") {
+                exitGuestMode()
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Your guest session will end and you will return to the login flow.")
         }
         .confirmationDialog("Delete account?", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
             Button("Delete Account", role: .destructive) {
@@ -325,6 +368,12 @@ struct ProfileScreen: View {
         appCoordinator.moveToAuth()
     }
 
+    private func exitGuestMode() {
+        SessionManager.clear()
+        coordinator.popToRoot()
+        appCoordinator.moveToAuth()
+    }
+
     private func handleDeleteAccount() async {
         let deleted = await vm.deleteAccount()
         guard deleted else { return }
@@ -334,6 +383,15 @@ struct ProfileScreen: View {
         coordinator.popToRoot()
         await MainActor.run {
             appCoordinator.moveToAuth()
+        }
+    }
+
+    private var guestModeCard: some View {
+        StatsCard(title: "Guest Mode", subtitle: "Browse-only access") {
+            Text("You can explore courses in guest mode. Log in or create an account to start rounds, join the community, book tee times, and sync profile data.")
+                .font(.system(size: 15))
+                .foregroundColor(.softBlue.opacity(0.85))
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
@@ -410,14 +468,16 @@ struct HeaderArea: View {
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.white)
 
-                        Button(action: editAction) {
-                            Text("Edit Profile")
-                                .font(.system(size: 14, weight: .semibold))
-                                .padding(.vertical, 8)
-                                .padding(.horizontal, 12)
-                                .background(Color.white.opacity(0.12))
-                                .foregroundColor(.white)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        if !viewModel.isGuestMode {
+                            Button(action: editAction) {
+                                Text("Edit Profile")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, 12)
+                                    .background(Color.white.opacity(0.12))
+                                    .foregroundColor(.white)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            }
                         }
                     }
 

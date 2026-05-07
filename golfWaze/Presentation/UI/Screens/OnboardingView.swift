@@ -19,12 +19,10 @@ struct OnboardingView: View {
                         coordinator.push(.loginScreen(fromSignup: false))
                     }
                 }
-                // Secondary Log in button
-//                AppButton("Log in", .secondary) {
-//                    // TODO: action
-//                    coordinator.push(.loginScreen)
-//
-//                }
+                AppButton("Continue as Guest", .secondary) {
+                    SessionManager.startGuestSession()
+                    coordinator.moveToTabbar?()
+                }
                 HStack(spacing: 4) {
                     Text("Don't have an account?")
                         .font(.customFont(.robotoRegular, .pt14))

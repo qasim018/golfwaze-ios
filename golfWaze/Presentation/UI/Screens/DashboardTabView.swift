@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct DashboardTabView: View {
+    @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var coordinator: TabBarCoordinator
+    @State private var showGuestRestrictionAlert = false
     
     init() {
         let appearance = UITabBarAppearance()
@@ -32,7 +34,7 @@ struct DashboardTabView: View {
     }
     
     var body: some View {
-        TabView(selection: $coordinator.selectedTab) {
+        TabView(selection: tabSelection) {
             CoursesMapView()
                 .tag(TabBarCoordinator.Tab.courses)
                 .tabItem {
@@ -65,5 +67,36 @@ struct DashboardTabView: View {
                     Text("Profile")
                 }
         }
+        .alert("Login Required", isPresented: $showGuestRestrictionAlert) {
+            Button("Login") {
+                openLogin()
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This section is only available after logging in. Guest mode can browse courses and use the profile guest screen.")
+        }
+    }
+
+    private var tabSelection: Binding<TabBarCoordinator.Tab> {
+        Binding(
+            get: { coordinator.selectedTab },
+            set: { newValue in
+                if SessionManager.isGuestSession,
+                   newValue != .courses,
+                   newValue != .profile {
+                    showGuestRestrictionAlert = true
+                    coordinator.selectedTab = .courses
+                    return
+                }
+
+                coordinator.selectedTab = newValue
+            }
+        )
+    }
+
+    private func openLogin() {
+        SessionManager.clear()
+        coordinator.popToRoot()
+        appCoordinator.moveToAuth()
     }
 }

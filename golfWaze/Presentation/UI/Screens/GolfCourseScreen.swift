@@ -7,10 +7,12 @@
 import SwiftUI
 
 struct GolfCourseScreen: View {
+    @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var coordinator: TabBarCoordinator
-     @StateObject private var viewModel: GolfCourseDetailVM
+    @StateObject private var viewModel: GolfCourseDetailVM
     @State private var showPlayPopup = false
     @State private var showDeletePopup = false
+    @State private var showGuestRestrictionAlert = false
      let course: CourseDetail
     //courseID = 15733 knollwood
      init(course: CourseDetail) {
@@ -55,6 +57,10 @@ struct GolfCourseScreen: View {
                         }
                         
                         Button(action: {
+                            guard !SessionManager.isGuestSession else {
+                                showGuestRestrictionAlert = true
+                                return
+                            }
                             if let round = UserDefaults.standard.loadRound() {
                                 coordinator.push(.golfHole(course: viewModel.courseDetail ?? course, response: round))
                             }
@@ -130,7 +136,21 @@ struct GolfCourseScreen: View {
                 showDeletePopup = false
             }
         }
+        .alert("Login Required", isPresented: $showGuestRestrictionAlert) {
+            Button("Login") {
+                openLogin()
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Round actions are unavailable in guest mode.")
+        }
 
+    }
+
+    private func openLogin() {
+        SessionManager.clear()
+        coordinator.popToRoot()
+        appCoordinator.moveToAuth()
     }
     
     
@@ -357,4 +377,3 @@ struct PlayTimePopup: View {
         .animation(.spring(), value: true)
     }
 }
-

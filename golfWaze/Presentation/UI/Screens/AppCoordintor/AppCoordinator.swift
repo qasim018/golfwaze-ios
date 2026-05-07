@@ -30,7 +30,7 @@ final class AppCoordinator: ObservableObject {
     
     /// Check stored token/user session
     func checkAuthentication() {
-        isAuthenticated = SessionManager.hasActiveSession
+        isAuthenticated = SessionManager.hasAppAccess
         if isAuthenticated {
             state = .authenticated
         } else {

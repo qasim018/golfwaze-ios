@@ -75,7 +75,8 @@ class SignUpViewModel: ObservableObject {
                 username: user.username,
                 profileImage: user.profile_image,
                 handicap: user.handicap,
-                accessToken: decoded.access_token
+                accessToken: decoded.access_token,
+                isGuest: false
             )
 
             SessionManager.save(session)

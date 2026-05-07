@@ -18,10 +18,12 @@ struct Player: Identifiable {
 
 struct GolfCourseDetailView: View {
     
+    @EnvironmentObject var appCoordinator: AppCoordinator
     @EnvironmentObject var coordinator: TabBarCoordinator
      @StateObject private var viewModel: GolfCourseDetailVM
     @ObservedObject private var liveTrafficViewModel = LiveTrafficViewModel()
     @State private var showPlayPopup = false
+    @State private var showGuestRestrictionAlert = false
 
      let course: CourseDetail
 
@@ -91,6 +93,14 @@ struct GolfCourseDetailView: View {
         .onDisappear {
             liveTrafficViewModel.cancelRequests()
         }
+        .alert("Login Required", isPresented: $showGuestRestrictionAlert) {
+            Button("Login") {
+                openLogin()
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Start round and review actions are unavailable in guest mode.")
+        }
 
     }
     
@@ -99,6 +109,10 @@ struct GolfCourseDetailView: View {
             addressCard()
             reviewCard()
                 .onTapGesture {
+                    guard !SessionManager.isGuestSession else {
+                        showGuestRestrictionAlert = true
+                        return
+                    }
                     coordinator.push(.courseReview)
                 }
 //            leaderboardCard()
@@ -123,6 +137,10 @@ struct GolfCourseDetailView: View {
             .padding(.bottom, 8)
             
             AppButton(Strings.startARound, .primary) {
+                guard !SessionManager.isGuestSession else {
+                    showGuestRestrictionAlert = true
+                    return
+                }
                 if let round = UserDefaults.standard.loadRound() {
                     coordinator.push(.golfHole(course: course, response: round))
                 }
@@ -136,6 +154,12 @@ struct GolfCourseDetailView: View {
         .background(
             Color.white.clipShape(RoundedRectangle(cornerRadius: 12))
         )
+    }
+
+    private func openLogin() {
+        SessionManager.clear()
+        coordinator.popToRoot()
+        appCoordinator.moveToAuth()
     }
     
     private func reviewCard() -> some View {
@@ -460,6 +484,5 @@ struct GolfCourseDetailView_Previews: PreviewProvider {
 //        GolfCourseDetailView(courseID: "")
     }
 }
-
 
 

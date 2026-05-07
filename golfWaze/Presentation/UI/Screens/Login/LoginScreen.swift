@@ -252,7 +252,8 @@ struct LoginScreen: View {
                             username: user.username,
                             profileImage: user.profileImage,
                             handicap: user.handicap,
-                            accessToken: response.accessToken
+                            accessToken: response.accessToken,
+                            isGuest: false
                         )
 
                         SessionManager.save(session)
