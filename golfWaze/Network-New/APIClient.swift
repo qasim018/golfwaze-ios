@@ -37,36 +37,21 @@ class APIClient: @unchecked Sendable {
                                  headers: endpoint.combinedHeaders)
         request.validate()
         request.responseDecodable(of: E.ResponseType.self) { response in
+            APILogger.logAlamofireRequest(
+                url: endpoint.url,
+                method: endpoint.method,
+                parameters: endpoint.parameters,
+                headers: endpoint.combinedHeaders,
+                responseData: response.data,
+                error: response.error
+            )
+
             switch response.result {
             case .success(let value):
                 completion(.success(value))
             case .failure(let error):
-//                if !isConnectedToInternet {
-//                    NotificationCenter.default.post(name: NSNotification.Name("show_alert"), object: nil, userInfo: ["message" : Strings.messageNoInternet])
-//                } else {
-//                    print("Other error: \(error.localizedDescription)")
-//                    NotificationCenter.default.post(name: NSNotification.Name("show_alert"), object: nil, userInfo: ["message" : error.localizedDescription])
-                    completion(.failure(error))
-//                }
+                completion(.failure(error))
             }
-            print("\n\n*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*")
-            print("*_*_*_*_*_*_*_* Request Details *_*_*_*_*_*_*_*_*_*")
-            print("HTTPMethod: \(endpoint.method)")
-            print("URL:        \(endpoint.url)")
-            print("Params:     \(endpoint.parameters ?? [:])")
-            print("Headers:    \(endpoint.combinedHeaders)")
-            print("\n*_*_*_*_*_*_*_* Response Start *_*_*_*_*_*_*_*")
-            self.printJSON(response.data)
-            print("*_*_*_*_*_*_*_*_*_* Response End  *_*_*_*_*_*_*_*_*_*")
-            
-            request.cURLDescription { curl in
-                print("*_*_*_*_*_*_*_*_*_* Curl Start *_*_*_*_*_*_*_*_*_*")
-                print("\(curl)")
-                print("*_*_*_*_*_*_*_*_*_* Curl End *_*_*_*_*_*_*_*_*_*")
-                print("*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*\n\n")
-            }
-            
-            
         }
         
         
@@ -74,31 +59,23 @@ class APIClient: @unchecked Sendable {
     
     
     func downloadFile(from url: String, to destination: URL, completion: @escaping ((URL?, AFError?)->())) {
+        APILogger.logRequest(url: url, method: HTTPMethod.get.rawValue)
+
         let destination: DownloadRequest.Destination = { _, _ in
             return (destination, [.removePreviousFile, .createIntermediateDirectories])
         }
         
         AF.download(url, to: destination).response { response in
+            APILogger.logResponse(
+                data: response.fileURL?.absoluteString.data(using: .utf8),
+                statusCode: response.response?.statusCode,
+                error: response.error
+            )
+
             if let error = response.error {
-                print("Download failed with error: \(error.localizedDescription)")
                 completion(nil, error)
             } else if let fileURL = response.fileURL {
-                print("File downloaded to: \(fileURL)")
                 completion(fileURL, nil)
-            }
-        }
-    }
-    
-    private func printJSON(_ data: Data?) {
-        if let data = data {
-            do {
-                let json = try JSONSerialization.jsonObject(with: data)
-                if let jsonData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted),
-                   let jsonString = String(data: jsonData, encoding: .utf8) {
-                    print("Response JSON: \n\(jsonString)")
-                }
-            } catch {
-                print("Failed to parse JSON: \(error.localizedDescription)")
             }
         }
     }

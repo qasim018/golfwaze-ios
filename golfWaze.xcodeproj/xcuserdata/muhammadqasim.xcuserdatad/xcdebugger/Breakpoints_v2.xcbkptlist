@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "931ABCDC-C7B9-4C1A-8C5A-582E9DC517C3"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C8B16097-A3D5-4313-8335-C09544BE1EFF"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "50"
+            endingLineNumber = "50"
+            landmarkName = "createRound(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "C8B16097-A3D5-4313-8335-C09544BE1EFF - 81935256518c1ff6"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(5) suspend resume partial function for golfWaze.StartRoundViewModel.createRound(golfWaze.CreateRoundRequest) async -&gt; ()"
+                  moduleName = "golfWaze.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/muhammadqasim/Documents/Projects/Abubakar&apos;s%20Client/golfwaze-ios/golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "52"
+                  endingLineNumber = "52">
+               </Location>
+               <Location
+                  uuid = "C8B16097-A3D5-4313-8335-C09544BE1EFF - d77cfe3d4ca76af5"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(6) await resume partial function for golfWaze.StartRoundViewModel.createRound(golfWaze.CreateRoundRequest) async -&gt; ()"
+                  moduleName = "golfWaze.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/muhammadqasim/Documents/Projects/Abubakar&apos;s%20Client/golfwaze-ios/golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "52"
+                  endingLineNumber = "52">
+               </Location>
+               <Location
+                  uuid = "C8B16097-A3D5-4313-8335-C09544BE1EFF - 6399c68115d297f2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(9) suspend resume partial function for golfWaze.StartRoundViewModel.createRound(golfWaze.CreateRoundRequest) async -&gt; ()"
+                  moduleName = "golfWaze.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/muhammadqasim/Documents/Projects/Abubakar&apos;s%20Client/golfwaze-ios/golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "52"
+                  endingLineNumber = "52">
+               </Location>
+               <Location
+                  uuid = "C8B16097-A3D5-4313-8335-C09544BE1EFF - 28af9c95f721f1aa"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(13) suspend resume partial function for golfWaze.StartRoundViewModel.createRound(golfWaze.CreateRoundRequest) async -&gt; ()"
+                  moduleName = "golfWaze.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/muhammadqasim/Documents/Projects/Abubakar&apos;s%20Client/golfwaze-ios/golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "52"
+                  endingLineNumber = "52">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C0DD8FB5-53BB-4237-B94E-0978439BC55D"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "391"
+            endingLineNumber = "391"
+            landmarkName = "deleteRound(roundId:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "C0DD8FB5-53BB-4237-B94E-0978439BC55D - 3590c78c2bf64db3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "golfWaze.LiveTrafficViewModel.updateLiveTraffic(golfWaze.UpdateLiveTrafficRequest) async -&gt; ()"
+                  moduleName = "golfWaze.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/muhammadqasim/Documents/Projects/Abubakar&apos;s%20Client/golfwaze-ios/golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "392"
+                  endingLineNumber = "392">
+               </Location>
+               <Location
+                  uuid = "C0DD8FB5-53BB-4237-B94E-0978439BC55D - c5822e7deefb16bc"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for golfWaze.LiveTrafficViewModel.updateLiveTraffic(golfWaze.UpdateLiveTrafficRequest) async -&gt; ()"
+                  moduleName = "golfWaze.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/muhammadqasim/Documents/Projects/Abubakar&apos;s%20Client/golfwaze-ios/golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "392"
+                  endingLineNumber = "392">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "BB3B8BD5-2BA9-491E-B4A5-E45D8FA44200"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "golfWaze/Presentation/UI/Screens/MapView/GolfHoleScreen.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "231"
+            endingLineNumber = "231"
+            landmarkName = "holeInfoCard()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5CEAEF37-591D-41F5-910F-3540A1056C4B"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "31"
+            endingLineNumber = "31"
+            landmarkName = "apiURL"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "30D8D7DB-089D-4A2C-BFC4-6B6376D363F2"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "72"
+            endingLineNumber = "72"
+            landmarkName = "fetchPlayers()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "D6113ECC-6FD0-44D3-A26B-0170A376445F"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "339"
+            endingLineNumber = "339"
+            landmarkName = "fetchLiveTraffic(courseId:token:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "D6113ECC-6FD0-44D3-A26B-0170A376445F - af5f53c41c428c9a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 @Swift.MainActor @Sendable () -&gt; () in closure #1 () async -&gt; () in golfWaze.LiveTrafficViewModel.fetchLiveTraffic(courseId: Swift.String, token: Swift.String) -&gt; ()"
+                  moduleName = "golfWaze.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/muhammadqasim/Documents/Projects/Abubakar&apos;s%20Client/golfwaze-ios/golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "339"
+                  endingLineNumber = "339">
+               </Location>
+               <Location
+                  uuid = "D6113ECC-6FD0-44D3-A26B-0170A376445F - 4fe47327dbe88cc2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (golfWaze.ActivePlayer) -&gt; __C.CLLocationCoordinate2D in closure #2 @Swift.MainActor @Sendable () -&gt; () in closure #1 () async -&gt; () in golfWaze.LiveTrafficViewModel.fetchLiveTraffic(courseId: Swift.String, token: Swift.String) -&gt; ()"
+                  moduleName = "golfWaze.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/muhammadqasim/Documents/Projects/Abubakar&apos;s%20Client/golfwaze-ios/golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "339"
+                  endingLineNumber = "339">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "14FFA6ED-0AED-47C6-A50B-F3321F15BE91"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "417"
+            endingLineNumber = "417"
+            landmarkName = "updateLiveTraffic(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "14FFA6ED-0AED-47C6-A50B-F3321F15BE91 - c5822e7deefb1366"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for golfWaze.LiveTrafficViewModel.updateLiveTraffic(golfWaze.UpdateLiveTrafficRequest) async -&gt; ()"
+                  moduleName = "golfWaze.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/muhammadqasim/Documents/Projects/Abubakar&apos;s%20Client/golfwaze-ios/golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "418"
+                  endingLineNumber = "418">
+               </Location>
+               <Location
+                  uuid = "14FFA6ED-0AED-47C6-A50B-F3321F15BE91 - 1b3ad3738a91d7e8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for golfWaze.LiveTrafficViewModel.updateLiveTraffic(golfWaze.UpdateLiveTrafficRequest) async -&gt; ()"
+                  moduleName = "golfWaze.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/muhammadqasim/Documents/Projects/Abubakar&apos;s%20Client/golfwaze-ios/golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "418"
+                  endingLineNumber = "418">
+               </Location>
+               <Location
+                  uuid = "14FFA6ED-0AED-47C6-A50B-F3321F15BE91 - 1b3ad3738a91d7e8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for golfWaze.LiveTrafficViewModel.updateLiveTraffic(golfWaze.UpdateLiveTrafficRequest) async -&gt; ()"
+                  moduleName = "golfWaze.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/muhammadqasim/Documents/Projects/Abubakar&apos;s%20Client/golfwaze-ios/golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "418"
+                  endingLineNumber = "418">
+               </Location>
+               <Location
+                  uuid = "14FFA6ED-0AED-47C6-A50B-F3321F15BE91 - 896ec0e34c6f0cad"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(8) suspend resume partial function for golfWaze.LiveTrafficViewModel.updateLiveTraffic(golfWaze.UpdateLiveTrafficRequest) async -&gt; ()"
+                  moduleName = "golfWaze.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/muhammadqasim/Documents/Projects/Abubakar&apos;s%20Client/golfwaze-ios/golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "418"
+                  endingLineNumber = "418">
+               </Location>
+               <Location
+                  uuid = "14FFA6ED-0AED-47C6-A50B-F3321F15BE91 - aba2c2647e10ed6e"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(9) suspend resume partial function for golfWaze.LiveTrafficViewModel.updateLiveTraffic(golfWaze.UpdateLiveTrafficRequest) async -&gt; ()"
+                  moduleName = "golfWaze.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/muhammadqasim/Documents/Projects/Abubakar&apos;s%20Client/golfwaze-ios/golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "418"
+                  endingLineNumber = "418">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F836DF96-0604-4886-8C22-722405B60AD5"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "golfWaze/Presentation/UI/Screens/StartRound/StartRoundViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "508"
+            endingLineNumber = "508"
+            landmarkName = "finishRoundPublisher(requestBody:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "AFD6D55D-78D5-4C46-B973-8D95E5CD78D9"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "golfWaze/Presentation/UI/Screens/ProfileScreen.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "62"
+            endingLineNumber = "62"
+            landmarkName = "fetchProfile()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A4183FDE-2F5E-43D0-B136-89159ECB6569"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "golfWaze/Presentation/UI/Screens/ProfileScreen.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "194"
+            endingLineNumber = "194"
+            landmarkName = "buildDeleteAccountRequests(payload:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>

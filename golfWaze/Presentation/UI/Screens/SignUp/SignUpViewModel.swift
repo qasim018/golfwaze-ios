@@ -41,24 +41,9 @@ class SignUpViewModel: ObservableObject {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try JSONEncoder().encode(body)
 
-            // 🔹 Log request body
-            if let json = String(data: request.httpBody!, encoding: .utf8) {
-                print("📤 SIGNUP REQUEST BODY:\n\(json)")
-            }
+            let (data, _) = try await NetworkClient.data(for: request)
 
-            let (data, response) = try await URLSession.shared.data(for: request)
-
-            // 🔹 Log HTTP status
-            if let http = response as? HTTPURLResponse {
-                print("📡 STATUS CODE:", http.statusCode)
-            }
-
-            // 🔹 Log raw response JSON
-            if let jsonString = String(data: data, encoding: .utf8) {
-                print("📥 SIGNUP RAW RESPONSE:\n\(jsonString)")
-            }
-
-            // 🔹 Decode
+            // Decode
             let decoded = try JSONDecoder().decode(SignUpResponse.self, from: data)
             self.signUpResponse = decoded
 

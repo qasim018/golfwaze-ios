@@ -7,16 +7,6 @@
 
 import Foundation
 import GoogleMaps
-
-func printRawJSON(_ data: Data) {
-    if let jsonString = String(data: data, encoding: .utf8) {
-        print("\n========= RAW JSON RESPONSE =========\n\(jsonString)\n=====================================\n")
-    } else {
-        print("⚠️ Unable to decode JSON as UTF-8 string")
-    }
-}
-import Foundation
-import GoogleMaps
 import CoreLocation
 
 @MainActor
@@ -43,8 +33,7 @@ class StartRoundViewModel: ObservableObject {
             let encoder = JSONEncoder()
             request.httpBody = try encoder.encode(body)
 
-            let (data, _) = try await URLSession.shared.data(for: request)
-            printRawJSON(data)
+            let (data, _) = try await NetworkClient.data(for: request)
 
             let decoder = JSONDecoder()
             let response = try decoder.decode(CreateRoundResponse.self, from: data)
@@ -85,12 +74,8 @@ class StartRoundViewModel: ObservableObject {
             return
         }
 
-        URLSession.shared.dataTask(with: request) { [weak self] data, _, _ in
+        NetworkClient.dataTask(with: request) { [weak self] data, _, _ in
             guard let self = self, let data = data else { return }
-
-            if let jsonString = String(data: data, encoding: .utf8) {
-                print("RAW JSON 👉\n\(jsonString)")
-            }
 
             do {
                 let response = try JSONDecoder().decode(PlayersResponse.self, from: data)
@@ -340,8 +325,7 @@ class LiveTrafficViewModel: ObservableObject {
             }
 
             do {
-                let (data, _) = try await URLSession.shared.data(from: url)
-                printRawJSON(data)
+                let (data, _) = try await NetworkClient.data(from: url)
 
                 try Task.checkCancellation()
 
@@ -388,7 +372,7 @@ class LiveTrafficViewModel: ObservableObject {
         var request = URLRequest(url: url)
         request.httpMethod = "DELETE"
 
-        URLSession.shared.dataTask(with: request) { data, _, error in
+        NetworkClient.dataTask(with: request) { data, _, error in
             DispatchQueue.main.async {
                 self.isDeleting = false
 
@@ -424,8 +408,7 @@ extension LiveTrafficViewModel {
             let body = try JSONEncoder().encode(payload)
             request.httpBody = body
 
-            let (data, _) = try await URLSession.shared.data(for: request)
-            printRawJSON(data)
+            let (data, _) = try await NetworkClient.data(for: request)
 
             let decoder = JSONDecoder()
             let response = try decoder.decode(UpdateLiveTrafficResponse.self, from: data)
@@ -517,13 +500,9 @@ final class FinishRoundViewModel: ObservableObject {
             return Fail(error: error).eraseToAnyPublisher()
         }
         
-        return URLSession.shared.dataTaskPublisher(for: request)
+        return NetworkClient.dataTaskPublisher(for: request)
             .tryMap { output in
-                if let jsonString = String(data: output.data, encoding: .utf8) {
-                    print("Finish Round RAW 👉\n\(jsonString)")
-                }
-                
-                return output.data
+                output.data
             }
             .decode(type: FinishRoundResponse.self, decoder: JSONDecoder())
             .receive(on: DispatchQueue.main)

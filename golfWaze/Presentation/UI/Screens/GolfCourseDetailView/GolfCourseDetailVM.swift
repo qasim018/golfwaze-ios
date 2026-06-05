@@ -47,13 +47,9 @@ final class GolfCourseDetailVM: ObservableObject {
         let urlString = "https://golfwaze.com/dashbord/api.php?action=get_course&course_id=\(courseID)"
         guard let url = URL(string: urlString) else { return }
 
-        URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
+        NetworkClient.dataTask(with: url) { [weak self] data, _, _ in
             guard let self = self, let data = data else { return }
 
-            if let jsonString = String(data: data, encoding: .utf8) {
-                    print("RAW JSON 👉\n\(jsonString)")
-                }
-            
             do {
                 let response = try JSONDecoder().decode(GolfCourseDetailResponse.self, from: data)
                 DispatchQueue.main.async {
@@ -84,7 +80,7 @@ final class GolfCourseDetailVM: ObservableObject {
         var request = URLRequest(url: url)
         request.httpMethod = "DELETE"
 
-        URLSession.shared.dataTask(with: request) { data, _, error in
+        NetworkClient.dataTask(with: request) { data, _, error in
             DispatchQueue.main.async {
                 self.isDeleting = false
 

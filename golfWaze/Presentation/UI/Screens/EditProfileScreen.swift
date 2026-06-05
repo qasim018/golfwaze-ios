@@ -80,16 +80,10 @@ final class EditProfileViewModel: ObservableObject {
         body.appendString("--\(boundary)--\r\n")
         request.httpBody = body
 
-        // Debug: Print the HTTP Body
-        if let bodyString = String(data: body, encoding: .utf8) {
-            print("📧 HTTP Body:\n", bodyString)
-        }
-
         // Add timeout
         request.timeoutInterval = 30
 
-        // Make the API call
-        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+        NetworkClient.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async {
                 self?.isLoading = false
             }
@@ -103,9 +97,7 @@ final class EditProfileViewModel: ObservableObject {
                 return
             }
 
-            // Check HTTP status code
             if let httpResponse = response as? HTTPURLResponse {
-                print("📡 HTTP Status Code:", httpResponse.statusCode)
                 if httpResponse.statusCode != 200 {
                     DispatchQueue.main.async {
                         self?.errorMessage = "Server error: \(httpResponse.statusCode)"
@@ -123,11 +115,6 @@ final class EditProfileViewModel: ObservableObject {
                     self?.showError = true
                 }
                 return
-            }
-
-            // Debug: Print raw response
-            if let jsonResponse = String(data: data, encoding: .utf8) {
-                print("📦 RAW RESPONSE:\n", jsonResponse)
             }
 
             // Handle response

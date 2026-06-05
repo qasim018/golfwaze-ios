@@ -62,12 +62,8 @@ final class ProfileViewModel: ObservableObject {
         let urlString = "https://golfwaze.com/dashbord/new_api.php?action=get_profile&token=\(token)"
         guard let url = URL(string: urlString) else { return }
 
-        URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
+        NetworkClient.dataTask(with: url) { [weak self] data, _, error in
             guard let self = self, let data = data else { return }
-
-            if let json = String(data: data, encoding: .utf8) {
-                print("PROFILE RAW JSON 👉\n\(json)")
-            }
 
             do {
                 let decoded = try JSONDecoder().decode(ProfileAPIResponse.self, from: data)
@@ -161,7 +157,7 @@ final class ProfileViewModel: ObservableObject {
 
         for request in candidates {
             do {
-                let (data, response) = try await URLSession.shared.data(for: request)
+                let (data, response) = try await NetworkClient.data(for: request)
 
                 if let httpResponse = response as? HTTPURLResponse,
                    !(200...299).contains(httpResponse.statusCode) {
